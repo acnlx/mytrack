@@ -247,6 +247,26 @@
             margin: 5px 0;
         }
 
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .alert.success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid #22c55e;
+            color: #22c55e;
+        }
+
+        .alert.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -301,7 +321,10 @@
         <div class="sync-info">
             <h3>📊 Synchronisation Google Sheets</h3>
             <p>Toutes les données enregistrées via les formulaires ci-dessous sont automatiquement envoyées à votre feuille de calcul Google Sheets.</p>
+            <p><strong>⚠️ IMPORTANT:</strong> Remplacez l'URL du script Google Apps par la vôtre dans le code JavaScript !</p>
         </div>
+
+        <div id="alert-container"></div>
 
         <div class="tabs">
             <button class="tab-button active" onclick="switchTab('quotidien', event)">
@@ -534,13 +557,34 @@
     </div>
 
 <script>
-  /* — lien vers ton Apps Script — */
-  const googleScriptURL =
-    "https://script.google.com/macros/s/AKfycbxZllHGSMYb9fjlhg5M_somI5mwXj-g4HZ8aU5lCADvNGG9VZZzb8cen8jRDMrHD0KZ/exec";
+  /* ⚠️ REMPLACEZ CETTE URL PAR CELLE DE VOTRE APPS SCRIPT ⚠️ */
+  const googleScriptURL = "REMPLACEZ_PAR_VOTRE_URL_APPS_SCRIPT";
+  
+  /* ——— FONCTIONS D'ALERTE AMÉLIORÉES ——— */
+  function showAlert(message, type = 'success') {
+    const alertContainer = document.getElementById('alert-container');
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert ${type}`;
+    alertDiv.textContent = message;
+    
+    alertContainer.innerHTML = '';
+    alertContainer.appendChild(alertDiv);
+    
+    setTimeout(() => {
+      alertDiv.remove();
+    }, 5000);
+  }
 
-  /* ——— NOUVELLE FONCTION AVEC GESTION CORS ——— */
+  /* ——— FONCTION D'ENVOI AMÉLIORÉE ——— */
   async function sendToGoogleSheets(data) {
+    if (googleScriptURL === "REMPLACEZ_PAR_VOTRE_URL_APPS_SCRIPT") {
+      showAlert("⚠️ Veuillez d'abord configurer l'URL de votre Google Apps Script dans le code !", 'error');
+      return;
+    }
+
     try {
+      console.log('Envoi des données:', data);
+      
       const response = await fetch(googleScriptURL, {
         method: 'POST',
         headers: {
@@ -550,19 +594,23 @@
         mode: 'cors'
       });
 
+      console.log('Réponse reçue:', response.status);
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`Erreur HTTP: ${response.status}`);
       }
 
       const result = await response.text();
-      console.log('Succès:', result);
-      alert("✅ Données envoyées sur Google Sheets !");
+      console.log('Résultat:', result);
+      
+      showAlert("✅ Données envoyées avec succès sur Google Sheets !", 'success');
       return result;
       
     } catch (error) {
-      console.error('Erreur détaillée:', error);
+      console.error('Erreur CORS, tentative en mode no-cors:', error);
       
       try {
+        // Tentative en mode no-cors
         await fetch(googleScriptURL, {
           method: 'POST',
           mode: 'no-cors',
@@ -571,17 +619,18 @@
           },
           body: JSON.stringify(data)
         });
+        
         console.log('Données envoyées en mode no-cors');
-        alert("✅ Données envoyées (mode de secours) !");
+        showAlert("✅ Données envoyées (mode de secours) !", 'success');
         return 'Données envoyées (mode no-cors)';
+        
       } catch (fallbackError) {
-        console.error('Erreur même en no-cors:', fallbackError);
-        alert("❌ Erreur réseau : " + fallbackError.message);
+        console.error('Erreur complète:', fallbackError);
+        showAlert(`❌ Erreur d'envoi: ${fallbackError.message}`, 'error');
         throw fallbackError;
       }
     }
   }
-  /* ——— FIN NOUVELLE FONCTION ——— */
 
   /* --- GESTION DES ONGLETS --- */
   function switchTab(tabName, event) {
@@ -598,6 +647,7 @@
       day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'
     });
   }
+  
   function saveDataToLocal(type, data) {
     const entry = { id: Date.now(), type, timestamp: getTimestamp(), data };
     const all = JSON.parse(localStorage.getItem('trackerData')||'[]');
@@ -636,20 +686,31 @@
   function connectForm(id, type) {
     document.getElementById(id).addEventListener('submit', async e => {
       e.preventDefault();
+      
+      const submitButton = e.target.querySelector('.submit-button');
+      submitButton.disabled = true;
+      submitButton.textContent = 'Envoi en cours...';
+      
       const fd = new FormData(e.target);
       const data = { type };
+      
       fd.forEach((val, key) => {
         const el = e.target[key];
         data[key] = (el && el.type === 'checkbox') ? el.checked : val;
       });
 
+      console.log('Données du formulaire:', data);
       saveDataToLocal(type, data);   // historique local
+      
       try {
         await sendToGoogleSheets(data);      // envoi Sheets
+        e.target.reset(); // Reset seulement si envoi réussi
       } catch (error) {
         console.error('Erreur lors de l\'envoi:', error);
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Enregistrer';
       }
-      e.target.reset();
     });
   }
 
@@ -659,6 +720,13 @@
   connectForm('form-mensurations',  'mensurations');
   connectForm('form-photos',        'photos');
   connectForm('form-hebdomadaire',  'hebdomadaire');
+
+  /* --- VÉRIFICATION AU CHARGEMENT --- */
+  window.addEventListener('load', () => {
+    if (googleScriptURL === "REMPLACEZ_PAR_VOTRE_URL_APPS_SCRIPT") {
+      showAlert("⚠️ Configuration requise: Remplacez l'URL du Google Apps Script dans le code JavaScript !", 'error');
+    }
+  });
 </script>
 </body>
 </html>

@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracker de Vie Épuré</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #fff, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            font-size: 0.9rem;
+        }
+
+        .status.open {
+            color: #4ade80;
+            border: 1px solid #4ade80;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .tab-button.active {
+            background: rgba(139, 92, 246, 0.3);
+            border-color: #8b5cf6;
+        }
+
+        .tab-content {
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-group input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        .form-group input[type="number"]::-webkit-outer-spin-button,
+        .form-group input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            cursor: pointer;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #8b5cf6, #6d28d9);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        .history-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .history-item h4 {
+            color: #8b5cf6;
+            margin-bottom: 10px;
+        }
+
+        .history-item p {
+            margin: 5px 0;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .delete-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .delete-button:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        .sync-info {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid #22c55e;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .sync-info h3 {
+            color: #22c55e;
+            margin-bottom: 10px;
+        }
+
+        .sync-info p {
+            color: rgba(255, 255, 255, 0.8);
+            margin: 5px 0;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .tabs {
+                gap: 5px;
+            }
+            
+            .tab-button {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+            
+            .form-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌟 Tracker de Vie Épuré</h1>
+            <div class="status open" id="status">
+                📂 Status: Ouvert 24h/24
+            </div>
+        </div>
+
+        <div class="sync-info">
+            <h3>📊 Synchronisation Google Sheets</h3>
+            <p>Pour synchroniser avec Google Sheets :</p>
+            <p>1. Créez un Google Sheets avec les colonnes correspondant aux champs</p>
+            <p>2. Utilisez Google Apps Script (voir instructions ci-dessous)</p>
+            <p>3. Les données seront automatiquement envoyées à votre feuille</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('quotidien')">
+                📅 Quotidien
+            </button>
+            <button class="tab-button" onclick="switchTab('sport')">
+                💪 Sport
+            </button>
+            <button class="tab-button" onclick="switchTab('mensurations')">
+                📏 Mensurations
+            </button>
+            <button class="tab-button" onclick="switchTab('photos')">
+                📸 Photos
+            </button>
+            <button class="tab-button" onclick="switchTab('hebdomadaire')">
+                📊 Hebdomadaire
+            </button>
+            <button class="tab-button" onclick="switchTab('historique')">
+                📜 Historique
+            </button>
+        </div>
+
+        <!-- Section Quotidien -->
+        <div id="quotidien" class="tab-content active">
+            <div class="form-section">
+                <h2>📅 Suivi Quotidien</h2>
+                <form id="form-quotidien">
+                    <div class="form-group">
+                        <label>Mental du matin (1-10)</label>
+                        <input type="number" name="mental" min="1" max="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Qualité du sommeil (1-10)</label>
+                        <input type="number" name="sommeil" min="1" max="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Poids (kg)</label>
+                        <input type="number" name="poids" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Action de dépassement du jour</label>
+                        <textarea name="depassement" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Challenge mental</label>
+                        <input type="text" name="challenge">
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" name="nutrition" id="nutrition">
+                        <label for="nutrition">Nutrition respectée ?</label>
+                    </div>
+                    <div class="form-group">
+                        <label>Kcal / P / G / L</label>
+                        <input type="text" name="macros" placeholder="Ex: 2000 / 150 / 200 / 70">
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" name="eau" id="eau">
+                        <label for="eau">Eau bue (2L+) ?</label>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" name="lecture" id="lecture">
+                        <label for="lecture">Lecture faite ?</label>
+                    </div>
+                    <div class="form-group">
+                        <label>Quel livre ?</label>
+                        <input type="text" name="livre">
+                    </div>
+                    <div class="form-group">
+                        <label>Émotion de la journée</label>
+                        <select name="emotion">
+                            <option value="">Sélectionner</option>
+                            <option value="Joie">😊 Joie</option>
+                            <option value="Calme">😌 Calme</option>
+                            <option value="Stress">😰 Stress</option>
+                            <option value="Fatigue">😴 Fatigue</option>
+                            <option value="Motivation">💪 Motivation</option>
+                            <option value="Frustration">😤 Frustration</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-button">Enregistrer</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Section Sport -->
+        <div id="sport" class="tab-content">
+            <div class="form-section">
+                <h2>💪 Suivi Sport</h2>
+                <form id="form-sport">
+                    <div class="form-group">
+                        <label>KM de footing</label>
+                        <input type="number" name="km" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Temps de footing (minutes)</label>
+                        <input type="number" name="temps">
+                    </div>
+                    <div class="form-group">
+                        <label>RPE footing (1-10)</label>
+                        <input type="number" name="rpe_footing" min="1" max="10">
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" name="muscu" id="muscu">
+                        <label for="muscu">Musculation faite ?</label>
+                    </div>
+                    <div class="form-group">
+                        <label>Quelle séance ?</label>
+                        <input type="text" name="seance">
+                    </div>
+                    <div class="form-group">
+                        <label>RPE musculation (1-10)</label>
+                        <input type="number" name="rpe_muscu" min="1" max="10">
+                    </div>
+                    <button type="submit" class="submit-button">Enregistrer</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Section Mensurations -->
+        <div id="mensurations" class="tab-content">
+            <div class="form-section">
+                <h2>📏 Mensurations</h2>
+                <form id="form-mensurations">
+                    <div class="form-group">
+                        <label>Poids (kg)</label>
+                        <input type="number" name="poids_mens" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Tour de taille (cm)</label>
+                        <input type="number" name="taille" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Tour de hanches (cm)</label>
+                        <input type="number" name="hanches" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Tour de poitrine (cm)</label>
+                        <input type="number" name="poitrine" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Tour d'épaules (cm)</label>
+                        <input type="number" name="epaules" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Bras droit (cm)</label>
+                        <input type="number" name="bras_droit" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Bras gauche (cm)</label>
+                        <input type="number" name="bras_gauche" step="0.1">
+                    </div>
+                    <button type="submit" class="submit-button">Enregistrer</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Section Photos -->
+        <div id="photos" class="tab-content">
+            <div class="form-section">
+                <h2>📸 Photos de Progression</h2>
+                <form id="form-photos">
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" name="face" id="face">
+                        <label for="face">Photo de face prise</label>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" name="profil" id="profil">
+                        <label for="profil">Photo de profil prise</label>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" name="dos" id="dos">
+                        <label for="dos">Photo de dos prise</label>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" name="biceps" id="biceps">
+                        <label for="biceps">Double biceps pris</label>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" name="abdos" id="abdos">
+                        <label for="abdos">Abdos contractés pris</label>
+                    </div>
+                    <button type="submit" class="submit-button">Enregistrer</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Section Hebdomadaire -->
+        <div id="hebdomadaire" class="tab-content">
+            <div class="form-section">
+                <h2>📊 Bilan Hebdomadaire</h2>
+                <form id="form-hebdomadaire">
+                    <div class="form-group">
+                        <label>Semaine</label>
+                        <input type="week" name="semaine" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Résumé de la semaine</label>
+                        <textarea name="resume" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Discipline (1-10)</label>
+                        <input type="number" name="discipline" min="1" max="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Énergie moyenne (1-10)</label>
+                        <input type="number" name="energie" min="1" max="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Checks ratés</label>
+                        <textarea name="checks_rates" rows="2"></textarea>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" name="zone_rouge" id="zone_rouge">
+                        <label for="zone_rouge">Zone rouge atteinte ?</label>
+                    </div>
+                    <div class="form-group">
+                        <label>Si oui, pourquoi ?</label>
+                        <textarea name="zone_rouge_raison" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Objectifs semaine suivante</label>
+                        <textarea name="objectifs" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="submit-button">Enregistrer</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Section Historique -->
+        <div id="historique" class="tab-content">
+            <div class="history-section">
+                <h2>📜 Historique</h2>
+                <div id="history-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fonction pour changer d'onglet
+        function switchTab(tabName) {
+            // Cacher tous les contenus
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Retirer la classe active de tous les boutons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Afficher le contenu sélectionné
+            document.getElementById(tabName).classList.add('active');
+            
+            // Activer le bouton correspondant
+            event.target.classList.add('active');
+            
+            // Si c'est l'historique, le rafraîchir
+            if (tabName === 'historique') {
+                afficherHistorique();
+            }
+        }
+
+        // Fonction pour obtenir l'horodatage actuel
+        function getTimestamp() {
+            const now = new Date();
+            return now.toLocaleString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Fonction pour sauvegarder les données
+        function saveData(type, data) {
+            const timestamp = getTimestamp();
+            const entry = {
+                id: Date.now(),
+                type: type,
+                timestamp: timestamp,
+                data: data
+            };
+            
+            // Récupérer les données existantes
+            let allData = JSON.parse(localStorage.getItem('trackerData') || '[]');
+            allData.push(entry);
+            
+            // Sauvegarder
+            localStorage.setItem('trackerData', JSON.stringify(allData));
+            
+            // Afficher un message de succès
+            alert('✅ Données enregistrées avec succès !');
+            
+            // Réinitialiser le formulaire
+            event.target.reset();
+        }
+
+        // Fonction pour afficher l'historique
+        function afficherHistorique() {
+            const historyList = document.getElementById('history-list');
+            const allData = JSON.parse(localStorage.getItem('trackerData') || '[]');
+            
+            if (allData.length === 0) {
+                historyList.innerHTML = '<p style="text-align: center; color: rgba(255,255,255,0.5);">Aucune donnée enregistrée</p>';
+                return;
+            }
+            
+            // Trier par date décroissante
+            allData.sort((a, b) => b.id - a.id);
+            
+            historyList.innerHTML = allData.map(entry => {
+                let content = `<h4>${getTypeLabel(entry.type)} - ${entry.timestamp}</h4>`;
+                
+                // Afficher les données selon le type
+                Object.entries(entry.data).forEach(([key, value]) => {
+                    if (value !== '' && value !== false) {
+                        content += `<p><strong>${formatFieldName(key)}:</strong> ${formatValue(value)}</p>`;
+                    }
+                });
+                
+                return `
+                    <div class="history-item">
+                        ${content}
+                        <button class="delete-button" onclick="deleteEntry(${entry.id})">Supprimer</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Fonction pour obtenir le label du type
+        function getTypeLabel(type) {
+            const labels = {
+                'quotidien': '📅 Quotidien',
+                'sport': '💪 Sport',
+                'mensurations': '📏 Mensurations',
+                'photos': '📸 Photos',
+                'hebdomadaire': '📊 Hebdomadaire'
+            };
+            return labels[type] || type;
+        }
+
+        // Fonction pour formater les noms de champs
+        function formatFieldName(field) {
+            const names = {
+                'mental': 'Mental du matin',
+                'sommeil': 'Qualité du sommeil',
+                'poids': 'Poids',
+                'depassement': 'Action de dépassement',
+                'challenge': 'Challenge mental',
+                'nutrition': 'Nutrition respectée',
+                'macros': 'Macros',
+                'eau': 'Eau bue',
+                'lecture': 'Lecture faite',
+                'livre': 'Livre',
+                'emotion': 'Émotion',
+                'km': 'Kilomètres',
+                'temps': 'Temps',
+                'rpe_footing': 'RPE footing',
+                'muscu': 'Musculation',
+                'seance': 'Séance',
+                'rpe_muscu': 'RPE musculation',
+                'poids_mens': 'Poids',
+                'taille': 'Tour de taille',
+                'hanches': 'Tour de hanches',
+                'poitrine': 'Tour de poitrine',
+                'epaules': 'Tour d\'épaules',
+                'bras_droit': 'Bras droit',
+                'bras_gauche': 'Bras gauche',
+                'face': 'Photo de face',
+                'profil': 'Photo de profil',
+                'dos': 'Photo de dos',
+                'biceps': 'Double biceps',
+                'abdos': 'Abdos contractés',
+                'semaine': 'Semaine',
+                'resume': 'Résumé',
+                'discipline': 'Discipline',
+                'energie': 'Énergie',
+                'checks_rates': 'Checks ratés',
+                'zone_rouge': 'Zone rouge',
+                'zone_rouge_raison': 'Raison zone rouge',
+                'objectifs': 'Objectifs'
+            };
+            return names[field] || field;
+        }
+
+        // Fonction pour formater les valeurs
+        function formatValue(value) {
+            if (value === true) return '✅';
+            if (value === false) return '❌';
+            return value;
+        }
+
+        // Fonction pour supprimer une entrée
+        function deleteEntry(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette entrée ?')) {
+                let allData = JSON.parse(localStorage.getItem('trackerData') || '[]');
+                allData = allData.filter(entry => entry.id !== id);
+                localStorage.setItem('trackerData', JSON.stringify(allData));
+                afficherHistorique();
+            }
+        }
+
+        // Gestionnaires de formulaires
+        document.getElementById('form-quotidien').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {};
+            formData.forEach((value, key) => {
+                if (e.target[key].type === 'checkbox') {
+                    data[key] = e.target[key].checked;
+                } else {
+                    data[key] = value;
+                }
+            });
+            saveData('quotidien', data);
+        });
+
+        document.getElementById('form-sport').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {};
+            formData.forEach((value, key) => {
+                if (e.target[key].type === 'checkbox') {
+                    data[key] = e.target[key].checked;
+                } else {
+                    data[key] = value;
+                }
+            });
+            saveData('sport', data);
+        });
+
+        document.getElementById('form-mensurations').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+            saveData('mensurations', data);
+        });
+
+        document.getElementById('form-photos').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = {};
+            ['face', 'profil', 'dos', 'biceps', 'abdos'].forEach(photo => {
+                data[photo] = e.target[photo].checked;
+            });
+            saveData('photos', data);
+        });
+
+        document.getElementById('form-hebdomadaire').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {};
+            formData.forEach((value, key) => {
+                if (e.target[key].type === 'checkbox') {
+                    data[key] = e.target[key].checked;
+                } else {
+                    data[key] = value;
+                }
+            });
+            saveData('hebdomadaire', data);
+        });
+    </script>
+</body>
+</html>

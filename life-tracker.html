@@ -297,6 +297,9 @@
             <p>1. Créez un Google Sheets avec les colonnes correspondant aux champs</p>
             <p>2. Utilisez Google Apps Script (voir instructions ci-dessous)</p>
             <p>3. Les données seront automatiquement envoyées à votre feuille</p>
+            <button onclick="changePin()" style="margin-top: 10px; padding: 8px 16px; background: rgba(139, 92, 246, 0.3); border: 1px solid #8b5cf6; color: white; border-radius: 8px; cursor: pointer;">
+                🔐 Changer le code PIN
+            </button>
         </div>
 
         <div class="tabs">
@@ -536,6 +539,60 @@
     </div>
 
     <script>
+        // Protection par PIN au chargement
+        (function() {
+            // Vérifier si un PIN existe
+            let savedPin = localStorage.getItem('trackerPIN');
+            
+            // Premier accès : créer le PIN
+            if (!savedPin) {
+                let newPin = '';
+                while (!newPin || newPin.length !== 4 || isNaN(newPin)) {
+                    newPin = prompt('🔐 Première utilisation\nCréez un code PIN à 4 chiffres :');
+                    if (!newPin) {
+                        document.body.innerHTML = '<h1 style="text-align:center; margin-top:50px; color:white;">Accès refusé</h1>';
+                        throw new Error('Accès refusé');
+                    }
+                }
+                localStorage.setItem('trackerPIN', btoa(newPin)); // Encodage basique
+                alert('✅ Code PIN créé avec succès !');
+            }
+            
+            // Vérification du PIN
+            let attempts = 3;
+            let authenticated = false;
+            
+            while (attempts > 0 && !authenticated) {
+                const enteredPin = prompt(`🔐 Entrez votre code PIN\n${attempts} tentative(s) restante(s) :`);
+                
+                if (!enteredPin) {
+                    document.body.innerHTML = '<h1 style="text-align:center; margin-top:50px; color:white;">Accès annulé</h1>';
+                    throw new Error('Accès annulé');
+                }
+                
+                if (btoa(enteredPin) === savedPin) {
+                    authenticated = true;
+                } else {
+                    attempts--;
+                    if (attempts > 0) {
+                        alert(`❌ Code incorrect. ${attempts} tentative(s) restante(s).`);
+                    }
+                }
+            }
+            
+            if (!authenticated) {
+                // Effacer le contenu si échec
+                document.body.innerHTML = `
+                    <div style="text-align:center; margin-top:50px; font-family:Arial; color:white;">
+                        <h1>🔒 Accès bloqué</h1>
+                        <p>Trop de tentatives échouées.</p>
+                        <p>Rechargez la page pour réessayer.</p>
+                    </div>
+                `;
+                throw new Error('Accès bloqué');
+            }
+        })();
+
         // Fonction pour changer d'onglet
         function switchTab(tabName) {
             // Cacher tous les contenus
@@ -698,6 +755,31 @@
                 allData = allData.filter(entry => entry.id !== id);
                 localStorage.setItem('trackerData', JSON.stringify(allData));
                 afficherHistorique();
+            }
+        }
+
+        // Fonction pour changer le PIN
+        function changePin() {
+            const currentPin = prompt('Entrez votre PIN actuel :');
+            const savedPin = localStorage.getItem('trackerPIN');
+            
+            if (!currentPin || btoa(currentPin) !== savedPin) {
+                alert('❌ PIN incorrect');
+                return;
+            }
+            
+            let newPin = '';
+            while (!newPin || newPin.length !== 4 || isNaN(newPin)) {
+                newPin = prompt('Entrez votre nouveau PIN (4 chiffres) :');
+                if (!newPin) return;
+            }
+            
+            const confirmPin = prompt('Confirmez votre nouveau PIN :');
+            if (newPin === confirmPin) {
+                localStorage.setItem('trackerPIN', btoa(newPin));
+                alert('✅ PIN modifié avec succès !');
+            } else {
+                alert('❌ Les PINs ne correspondent pas');
             }
         }
 

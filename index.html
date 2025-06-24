@@ -534,29 +534,54 @@
     </div>
 
 <script>
-    // URL de votre script Google. Assurez-vous que c'est bien la dernière que vous avez déployée.
-    <script>
   /* — lien vers ton Apps Script — */
   const googleScriptURL =
     "https://script.google.com/macros/s/AKfycbxZllHGSMYb9fjlhg5M_somI5mwXj-g4HZ8aU5lCADvNGG9VZZzb8cen8jRDMrHD0KZ/exec";
 
-  /* ——— AJOUTE CETTE FONCTION ICI ——— */
-  function sendToGoogleSheets(data) {
-    fetch(googleScriptURL, {
-      method: "POST",
-      mode: "no-cors",      // contourne CORS
-      cache: "no-cache",
-      redirect: "follow",
-      body: JSON.stringify(data)
-    })
-    .then(() => {
+  /* ——— NOUVELLE FONCTION AVEC GESTION CORS ——— */
+  async function sendToGoogleSheets(data) {
+    try {
+      const response = await fetch(googleScriptURL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+        mode: 'cors'
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.text();
+      console.log('Succès:', result);
       alert("✅ Données envoyées sur Google Sheets !");
-    })
-    .catch(err => {
-      alert("❌ Erreur réseau : " + err);
-    });
+      return result;
+      
+    } catch (error) {
+      console.error('Erreur détaillée:', error);
+      
+      try {
+        await fetch(googleScriptURL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+        console.log('Données envoyées en mode no-cors');
+        alert("✅ Données envoyées (mode de secours) !");
+        return 'Données envoyées (mode no-cors)';
+      } catch (fallbackError) {
+        console.error('Erreur même en no-cors:', fallbackError);
+        alert("❌ Erreur réseau : " + fallbackError.message);
+        throw fallbackError;
+      }
+    }
   }
-  /* ——— FIN AJOUT ——— */
+  /* ——— FIN NOUVELLE FONCTION ——— */
 
   /* --- GESTION DES ONGLETS --- */
   function switchTab(tabName, event) {
@@ -580,9 +605,36 @@
     localStorage.setItem('trackerData', JSON.stringify(all));
   }
 
+  function afficherHistorique() {
+    const historyList = document.getElementById('history-list');
+    const data = JSON.parse(localStorage.getItem('trackerData') || '[]');
+    
+    if (data.length === 0) {
+      historyList.innerHTML = '<p>Aucune donnée enregistrée localement.</p>';
+      return;
+    }
+
+    historyList.innerHTML = data.reverse().map(entry => `
+      <div class="history-item">
+        <button class="delete-button" onclick="deleteEntry(${entry.id})">Supprimer</button>
+        <h4>${entry.type.charAt(0).toUpperCase() + entry.type.slice(1)} - ${entry.timestamp}</h4>
+        ${Object.entries(entry.data).filter(([key, value]) => key !== 'type' && value !== '' && value !== false).map(([key, value]) => 
+          `<p><strong>${key}:</strong> ${typeof value === 'boolean' ? (value ? '✅' : '❌') : value}</p>`
+        ).join('')}
+      </div>
+    `).join('');
+  }
+
+  function deleteEntry(id) {
+    const data = JSON.parse(localStorage.getItem('trackerData') || '[]');
+    const filtered = data.filter(entry => entry.id !== id);
+    localStorage.setItem('trackerData', JSON.stringify(filtered));
+    afficherHistorique();
+  }
+
   /* --- ENVOI + LOCAL : CONNECTE CHAQUE FORM --- */
   function connectForm(id, type) {
-    document.getElementById(id).addEventListener('submit', e => {
+    document.getElementById(id).addEventListener('submit', async e => {
       e.preventDefault();
       const fd = new FormData(e.target);
       const data = { type };
@@ -592,7 +644,11 @@
       });
 
       saveDataToLocal(type, data);   // historique local
-      sendToGoogleSheets(data);      // envoi Sheets
+      try {
+        await sendToGoogleSheets(data);      // envoi Sheets
+      } catch (error) {
+        console.error('Erreur lors de l\'envoi:', error);
+      }
       e.target.reset();
     });
   }

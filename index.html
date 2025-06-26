@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cockpit de Combat - Mission 90 Jours</title>
+    <title>Cockpit de Combat - Version Locale</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* VOTRE CSS EXISTANT - GARDEZ-LE IDENTIQUE */
         :root {
-            /* Mode Jour */
             --primary: #6366f1;
             --primary-dark: #4f46e5;
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
-            --sent-red: #dc2626; /* BEAU ROUGE pour les cases envoyées */
+            --sent-red: #dc2626;
             --background: #f8fafc;
             --surface: #ffffff;
             --card-bg: rgba(255, 255, 255, 0.9);
@@ -35,793 +35,83 @@
             --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--background);
-            color: var(--text-primary);
-            line-height: 1.6;
-            transition: all 0.3s ease;
-            min-height: 100vh;
-        }
-
-        /* NAVIGATION PRINCIPALE */
-        .main-nav {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            padding: 1rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .nav-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .app-title {
-            font-size: 1.5rem;
-            font-weight: 800;
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .nav-buttons {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .nav-btn {
-            background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            padding: 0.5rem 1rem;
-            color: var(--text-primary);
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .nav-btn:hover, .nav-btn.active {
-            border-color: var(--primary);
-            background: rgba(99, 102, 241, 0.1);
-        }
-
-        .theme-toggle {
-            background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: 50px;
-            width: 60px;
-            height: 30px;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .theme-toggle::before {
-            content: '🌙';
-            position: absolute;
-            top: 50%;
-            left: 4px;
-            transform: translateY(-50%);
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        [data-theme="dark"] .theme-toggle::before {
-            content: '☀️';
-            left: 32px;
-        }
-
-        .theme-toggle::after {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 24px;
-            height: 24px;
-            background: var(--primary);
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
-
-        [data-theme="dark"] .theme-toggle::after {
-            transform: translateX(28px);
-        }
-
-        /* PAGES */
-        .page {
-            display: none;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        /* PAGE COCKPIT */
-        .cockpit-layout {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
-        }
-
-        @media (min-width: 1024px) {
-            .cockpit-layout {
-                grid-template-columns: 1fr 350px;
-            }
-        }
-
-        /* STATS */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
+        /* GARDEZ TOUT VOTRE CSS EXISTANT ICI */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--background); color: var(--text-primary); line-height: 1.6; transition: all 0.3s ease; min-height: 100vh; }
+        
+        /* Ajoutez juste ce CSS pour le bouton d'export */
+        .export-section {
             background: var(--card-bg);
             backdrop-filter: blur(20px);
             border: 1px solid var(--border);
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 1.5rem;
-            text-align: center;
-            box-shadow: var(--shadow);
-            transition: all 0.3s ease;
-        }
-
-        .stat-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-
-        /* PROGRESSION VISUELLE */
-        .progress-overview {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 2rem;
-            margin-bottom: 2rem;
+            margin-top: 2rem;
             box-shadow: var(--shadow);
         }
-
-        .progress-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            color: var(--text-primary);
-        }
-
-        .checks-overview {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .check-overview-item {
-            background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            padding: 1rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .check-overview-item:hover {
-            transform: translateY(-2px);
-        }
-
-        .check-overview-item.sent {
-            border-color: var(--sent-red);
-            background: var(--gradient-sent);
-            color: white;
-        }
-
-        .check-overview-item.sent .check-overview-icon {
-            filter: brightness(0) invert(1);
-        }
-
-        .check-overview-icon {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-
-        .check-overview-name {
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        .check-overview-count {
-            font-size: 0.8rem;
-            opacity: 0.8;
-        }
-
-        /* QUESTION ACTUELLE */
-        .current-question {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow);
-        }
-
-        .question-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .question-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .question-icon {
-            width: 50px;
-            height: 50px;
-            background: var(--gradient-primary);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-
-        .question-details h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 0.25rem;
-        }
-
-        .question-meta {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .question-counter {
-            background: var(--primary);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .question-content {
-            margin-bottom: 2rem;
-        }
-
-        .question-label {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 1rem;
-        }
-
-        .question-input, .question-select, .question-textarea {
-            width: 100%;
-            padding: 1rem;
-            background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .question-input:focus, .question-select:focus, .question-textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-
-        .question-textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-
-        .question-actions {
+        
+        .export-buttons {
             display: flex;
             gap: 1rem;
-            justify-content: space-between;
+            flex-wrap: wrap;
         }
-
-        .nav-question-btn {
-            background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            padding: 1rem 1.5rem;
-            color: var(--text-primary);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            flex: 1;
-        }
-
-        .nav-question-btn:hover:not(:disabled) {
-            border-color: var(--primary);
-            background: rgba(99, 102, 241, 0.1);
-        }
-
-        .nav-question-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .send-btn {
+        
+        .export-btn {
             background: var(--gradient-primary);
             color: white;
             border: none;
             border-radius: 12px;
-            padding: 1rem 2rem;
+            padding: 0.75rem 1.5rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            flex: 2;
+            flex: 1;
+            min-width: 150px;
         }
-
-        .send-btn:hover:not(:disabled) {
+        
+        .export-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 20px 40px -12px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
         }
-
-        .send-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .send-btn.sent {
-            background: var(--gradient-sent);
-        }
-
-        /* COACH IA */
-        .coach-section {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-        }
-
-        .coach-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .coach-avatar {
-            width: 40px;
-            height: 40px;
-            background: var(--gradient-primary);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-
-        .coach-info h3 {
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 0.25rem;
-        }
-
-        .coach-status {
-            font-size: 0.85rem;
-            color: var(--success);
-            font-weight: 500;
-        }
-
-        .coach-messages {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .coach-message {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            animation: messageSlide 0.3s ease-out;
-        }
-
-        @keyframes messageSlide {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .message-time {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
-        }
-
-        .message-content {
-            color: var(--text-primary);
-            line-height: 1.5;
-        }
-
-        /* PAGE CONSULTATION */
-        .consultation-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-
-        .consultation-title {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--text-primary);
-        }
-
-        .date-selector {
-            background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            padding: 0.75rem;
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-        }
-
-        .data-display {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: var(--shadow);
-        }
-
-        .data-section {
-            margin-bottom: 2rem;
-        }
-
-        .data-section-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .data-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-        }
-
-        .data-item {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1rem;
-        }
-
-        .data-label {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.25rem;
-        }
-
-        .data-value {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .page {
-                padding: 1rem;
-            }
-            
-            .question-actions {
-                flex-direction: column;
-            }
-            
-            .nav-question-btn, .send-btn {
-                flex: none;
-            }
-            
-            .consultation-header {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
-        }
-
-        /* ANIMATIONS */
-        .fade-in {
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* SCROLLBAR */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--surface);
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 3px;
+        
+        .export-btn.danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
         }
     </style>
 </head>
 <body>
-    <!-- NAVIGATION PRINCIPALE -->
-    <nav class="main-nav">
-        <div class="nav-content">
-            <h1 class="app-title">Cockpit de Combat</h1>
-            <div class="nav-buttons">
-                <button class="nav-btn active" onclick="showPage('cockpit')">🎯 Cockpit</button>
-                <button class="nav-btn" onclick="showPage('consultation')">📊 Données</button>
-                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Basculer le thème"></button>
-            </div>
+    <!-- GARDEZ VOTRE HTML EXISTANT IDENTIQUE -->
+    <!-- Ajoutez juste cette section dans la page consultation -->
+    
+    <!-- SECTION EXPORT (à ajouter dans la page consultation) -->
+    <div class="export-section">
+        <h3 style="margin-bottom: 1rem; color: var(--text-primary);">📤 Export des Données</h3>
+        <div class="export-buttons">
+            <button class="export-btn" onclick="exportToCSV()">📄 Exporter CSV</button>
+            <button class="export-btn" onclick="exportToJSON()">📋 Exporter JSON</button>
+            <button class="export-btn" onclick="importData()">📥 Importer Données</button>
+            <button class="export-btn danger" onclick="clearAllData()">🗑️ Effacer Tout</button>
         </div>
-    </nav>
-
-    <!-- PAGE COCKPIT -->
-    <div id="cockpit" class="page active">
-        <div class="cockpit-layout fade-in">
-            <!-- CONTENU PRINCIPAL -->
-            <div class="main-content">
-                <!-- STATISTIQUES -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value" id="dayCounter">Jour 1</div>
-                        <div class="stat-label">/ 90 Jours</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="disciplineScore">100%</div>
-                        <div class="stat-label">Discipline</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="answersToday">0</div>
-                        <div class="stat-label">Réponses Envoyées</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="currentStreak">7</div>
-                        <div class="stat-label">Série Parfaite</div>
-                    </div>
-                </div>
-
-                <!-- PROGRESSION VISUELLE -->
-                <div class="progress-overview">
-                    <h2 class="progress-title">Progression du Jour</h2>
-                    <div class="checks-overview">
-                        <div class="check-overview-item" data-check="mental" onclick="goToCheck('mental')">
-                            <span class="check-overview-icon">🧠</span>
-                            <div class="check-overview-name">Mental</div>
-                            <div class="check-overview-count" id="mentalCount">0/5</div>
-                        </div>
-                        <div class="check-overview-item" data-check="cardio" onclick="goToCheck('cardio')">
-                            <span class="check-overview-icon">🏃</span>
-                            <div class="check-overview-name">Cardio</div>
-                            <div class="check-overview-count" id="cardioCount">0/3</div>
-                        </div>
-                        <div class="check-overview-item" data-check="muscu" onclick="goToCheck('muscu')">
-                            <span class="check-overview-icon">💪</span>
-                            <div class="check-overview-name">Musculation</div>
-                            <div class="check-overview-count" id="muscuCount">0/3</div>
-                        </div>
-                        <div class="check-overview-item" data-check="bilan" onclick="goToCheck('bilan')">
-                            <span class="check-overview-icon">📊</span>
-                            <div class="check-overview-name">Bilan</div>
-                            <div class="check-overview-count" id="bilanCount">0/6</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- QUESTION ACTUELLE -->
-                <div class="current-question">
-                    <div class="question-header">
-                        <div class="question-info">
-                            <div class="question-icon" id="currentQuestionIcon">🧠</div>
-                            <div class="question-details">
-                                <h3 id="currentQuestionTitle">Check Mental</h3>
-                                <div class="question-meta" id="currentQuestionMeta">Question 1 sur 5</div>
-                            </div>
-                        </div>
-                        <div class="question-counter" id="questionCounter">1/17</div>
-                    </div>
-
-                    <div class="question-content">
-                        <div class="question-label" id="questionLabel">Comment tu te sens ce matin ? (sans filtre)</div>
-                        <div id="questionInputContainer">
-                            <!-- Le champ de saisie sera généré dynamiquement -->
-                        </div>
-                    </div>
-
-                    <div class="question-actions">
-                        <button class="nav-question-btn" id="prevBtn" onclick="previousQuestion()" disabled>
-                            ← Précédent
-                        </button>
-                        <button class="send-btn" id="sendBtn" onclick="sendCurrentAnswer()">
-                            Envoyer Réponse
-                        </button>
-                        <button class="nav-question-btn" id="nextBtn" onclick="nextQuestion()">
-                            Suivant →
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- SIDEBAR COACH -->
-            <div class="sidebar">
-                <div class="coach-section">
-                    <div class="coach-header">
-                        <div class="coach-avatar">🤖</div>
-                        <div class="coach-info">
-                            <h3>Coach IA</h3>
-                            <div class="coach-status">● En ligne</div>
-                        </div>
-                    </div>
-                    <div class="coach-messages" id="coachMessages">
-                        <div class="coach-message">
-                            <div class="message-time">Aujourd'hui, 06:59</div>
-                            <div class="message-content">Salut Arnaud ! Prêt pour une nouvelle journée de progression ? Je vais analyser chacune de tes réponses et te donner des conseils personnalisés.</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- PAGE CONSULTATION -->
-    <div id="consultation" class="page">
-        <div class="consultation-header fade-in">
-            <h2 class="consultation-title">Consultation des Données</h2>
-            <input type="date" class="date-selector" id="dateSelector" onchange="loadDataForDate(this.value)">
-        </div>
-
-        <div class="data-display fade-in" id="dataDisplay">
-            <p style="text-align: center; color: var(--text-secondary); font-style: italic;">
-                Sélectionnez une date pour voir les données enregistrées
-            </p>
-        </div>
+        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleImport(event)">
     </div>
 
     <script>
         // ============================================
-        // CONFIGURATION GLOBALE
+        // CONFIGURATION LOCALE
         // ============================================
         
         const CONFIG = {
-            GOOGLE_WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbwXFsLr3G_53Mj1Lv-CtZLfxJzbjm0_y4dnlSXo-zLlvxkBu_dsYg0rfLC3Bx1XVLSL/exec',
-            OPENAI_API_KEY: 'YOUR_OPENAI_API_KEY', // À configurer
-            FEEDBACK_INTERVAL: 30000
+            OPENAI_API_KEY: 'VOTRE_CLE_OPENAI_ICI', // Remplacez par votre clé
+            MISSION_START_DATE: new Date('2025-06-26'),
+            STORAGE_KEYS: {
+                ANSWERS: 'cockpit_answers',
+                STATS: 'cockpit_stats',
+                FEEDBACK: 'cockpit_feedback',
+                THEME: 'cockpit_theme'
+            }
         };
 
-        // QUESTIONS DÉFINIES[1]
-        const QUESTIONS = [
-            // CHECK MENTAL (5 questions)
-            { id: 'q1_mental', check: 'mental', label: 'Comment tu te sens ce matin ? (sans filtre)', type: 'textarea', placeholder: 'Décris ton état mental actuel...' },
-            { id: 'q2_sommeil_duree', check: 'mental', label: 'Heures de sommeil', type: 'number', step: '0.5', min: '0', max: '12', placeholder: '7.5' },
-            { id: 'q3_sommeil_qualite', check: 'mental', label: 'Qualité du sommeil (1-10)', type: 'select', options: [
-                {value: '', text: 'Évaluer'},
-                {value: '1', text: '1 - Catastrophique'},
-                {value: '2', text: '2 - Très mauvais'},
-                {value: '3', text: '3 - Mauvais'},
-                {value: '4', text: '4 - Médiocre'},
-                {value: '5', text: '5 - Moyen'},
-                {value: '6', text: '6 - Correct'},
-                {value: '7', text: '7 - Bon'},
-                {value: '8', text: '8 - Très bon'},
-                {value: '9', text: '9 - Excellent'},
-                {value: '10', text: '10 - Parfait'}
-            ]},
-            { id: 'q4_recuperation', check: 'mental', label: 'Récupération nerveuse (1-10)', type: 'select', options: [
-                {value: '', text: 'Évaluer'},
-                {value: '1', text: '1 - Épuisé'},
-                {value: '2', text: '2 - Très fatigué'},
-                {value: '3', text: '3 - Fatigué'},
-                {value: '4', text: '4 - Un peu fatigué'},
-                {value: '5', text: '5 - Neutre'},
-                {value: '6', text: '6 - Reposé'},
-                {value: '7', text: '7 - Bien reposé'},
-                {value: '8', text: '8 - Très bien reposé'},
-                {value: '9', text: '9 - En pleine forme'},
-                {value: '10', text: '10 - Au maximum'}
-            ]},
-            { id: 'q5_objectif', check: 'mental', label: 'Objectif prioritaire de la journée', type: 'text', placeholder: 'Ton objectif #1 aujourd\'hui' },
-            
-            // CHECK CARDIO (3 questions)
-            { id: 'q6_cardio_fait', check: 'cardio', label: 'Cardio effectué ce matin ?', type: 'select', options: [
-                {value: '', text: 'Sélectionner'},
-                {value: 'oui', text: '✅ OUI'},
-                {value: 'non', text: '❌ NON'}
-            ]},
-            { id: 'q7_cardio_perf', check: 'cardio', label: 'Performance (distance + temps)', type: 'text', placeholder: '5km en 24:15', conditional: 'q6_cardio_fait=oui' },
-            { id: 'q8_poids', check: 'cardio', label: 'Poids du jour (kg)', type: 'number', step: '0.1', min: '40', max: '150', placeholder: '75.2' },
-            
-            // CHECK MUSCU (3 questions)
-            { id: 'q9_muscu_fait', check: 'muscu', label: 'Musculation effectuée ?', type: 'select', options: [
-                {value: '', text: 'Sélectionner'},
-                {value: 'oui', text: '✅ OUI'},
-                {value: 'non', text: '❌ NON'}
-            ]},
-            { id: 'q10_muscu_duree', check: 'muscu', label: 'Durée séance', type: 'text', placeholder: '45 minutes', conditional: 'q9_muscu_fait=oui' },
-            { id: 'q11_depassement', check: 'muscu', label: 'Action de dépassement aujourd\'hui', type: 'textarea', placeholder: 'Quelle action t\'a poussé hors de ta zone de confort ?' },
-            
-            // CHECK BILAN (6 questions)
-            { id: 'q12_nutrition', check: 'bilan', label: 'Nutrition respectée ?', type: 'select', options: [
-                {value: '', text: 'Évaluer'},
-                {value: 'oui', text: '✅ Parfaitement'},
-                {value: 'non', text: '❌ Écarts commis'}
-            ]},
-            { id: 'q13_emotion', check: 'bilan', label: 'Émotion dominante de la journée', type: 'text', placeholder: 'Motivation, frustration...' },
-            { id: 'q14_note_journee', check: 'bilan', label: 'Note de la journée (1-10)', type: 'select', options: [
-                {value: '', text: 'Noter'},
-                {value: '1', text: '1 - Catastrophique'},
-                {value: '2', text: '2 - Très mauvaise'},
-                {value: '3', text: '3 - Mauvaise'},
-                {value: '4', text: '4 - Médiocre'},
-                {value: '5', text: '5 - Moyenne'},
-                {value: '6', text: '6 - Correcte'},
-                {value: '7', text: '7 - Bonne'},
-                {value: '8', text: '8 - Très bonne'},
-                {value: '9', text: '9 - Excellente'},
-                {value: '10', text: '10 - Parfaite'}
-            ]},
-            { id: 'q15_justification', check: 'bilan', label: 'Justification de la note', type: 'textarea', placeholder: 'Pourquoi cette note ?' },
-            { id: 'q16_business', check: 'bilan', label: 'Action business du jour', type: 'textarea', placeholder: 'Action qui t\'a rapproché de tes objectifs business' }
-        ];
-
-        // Variables globales
+        // GARDEZ TOUTES VOS VARIABLES GLOBALES EXISTANTES
         let currentQuestionIndex = 0;
         let answeredQuestions = new Set();
         let questionAnswers = {};
@@ -833,234 +123,50 @@
         };
 
         // ============================================
-        // INITIALISATION
+        // STOCKAGE LOCAL
         // ============================================
         
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Initialisation Cockpit de Combat...');
-            
-            initTheme();
-            initDashboard();
-            showCurrentQuestion();
-            startFeedbackPolling();
-            
-            // Définir la date d'aujourd'hui par défaut
-            document.getElementById('dateSelector').value = new Date().toISOString().split('T')[0];
-            
-            console.log('✅ Cockpit opérationnel !');
-        });
-
-        // ============================================
-        // GESTION DU THÈME
-        // ============================================
-        
-        function initTheme() {
-            const savedTheme = localStorage.getItem('cockpit-theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        }
-
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('cockpit-theme', newTheme);
-        }
-
-        // ============================================
-        // NAVIGATION PAGES
-        // ============================================
-        
-        function showPage(pageId) {
-            // Masquer toutes les pages
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-            
-            // Désactiver tous les boutons de navigation
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // Afficher la page sélectionnée
-            document.getElementById(pageId).classList.add('active');
-            event.target.classList.add('active');
-        }
-
-        // ============================================
-        // GESTION DES QUESTIONS[1]
-        // ============================================
-        
-        function showCurrentQuestion() {
-            const question = QUESTIONS[currentQuestionIndex];
-            if (!question) return;
-            
-            // Vérifier si la question est conditionnelle
-            if (question.conditional && !shouldShowQuestion(question)) {
-                // Passer à la question suivante
-                if (currentQuestionIndex < QUESTIONS.length - 1) {
-                    currentQuestionIndex++;
-                    showCurrentQuestion();
-                }
-                return;
-            }
-            
-            // Mettre à jour l'interface
-            updateQuestionDisplay(question);
-            generateQuestionInput(question);
-            updateNavigationButtons();
-            updateProgressCounters();
-        }
-
-        function shouldShowQuestion(question) {
-            if (!question.conditional) return true;
-            
-            const [conditionId, conditionValue] = question.conditional.split('=');
-            return questionAnswers[conditionId] === conditionValue;
-        }
-
-        function updateQuestionDisplay(question) {
-            const checkData = {
-                mental: { icon: '🧠', title: 'Check Mental', time: '07:00' },
-                cardio: { icon: '🏃', title: 'Check Cardio', time: '08:30' },
-                muscu: { icon: '💪', title: 'Check Musculation', time: '13:00' },
-                bilan: { icon: '📊', title: 'Bilan Nutrition', time: '20:00' }
-            };
-            
-            const checkInfo = checkData[question.check];
-            const questionsInCheck = QUESTIONS.filter(q => q.check === question.check);
-            const questionIndexInCheck = questionsInCheck.findIndex(q => q.id === question.id) + 1;
-            
-            document.getElementById('currentQuestionIcon').textContent = checkInfo.icon;
-            document.getElementById('currentQuestionTitle').textContent = `${checkInfo.title} - ${checkInfo.time}`;
-            document.getElementById('currentQuestionMeta').textContent = `Question ${questionIndexInCheck} sur ${questionsInCheck.length}`;
-            document.getElementById('questionCounter').textContent = `${currentQuestionIndex + 1}/${QUESTIONS.length}`;
-            document.getElementById('questionLabel').textContent = question.label;
-        }
-
-        function generateQuestionInput(question) {
-            const container = document.getElementById('questionInputContainer');
-            let inputHtml = '';
-            
-            switch (question.type) {
-                case 'textarea':
-                    inputHtml = `<textarea class="question-textarea" id="currentInput" placeholder="${question.placeholder || ''}" rows="4"></textarea>`;
-                    break;
-                    
-                case 'number':
-                    inputHtml = `<input type="number" class="question-input" id="currentInput" 
-                                placeholder="${question.placeholder || ''}" 
-                                ${question.step ? `step="${question.step}"` : ''}
-                                ${question.min ? `min="${question.min}"` : ''}
-                                ${question.max ? `max="${question.max}"` : ''}">`;
-                    break;
-                    
-                case 'select':
-                    inputHtml = `<select class="question-select" id="currentInput">`;
-                    question.options.forEach(option => {
-                        inputHtml += `<option value="${option.value}">${option.text}</option>`;
-                    });
-                    inputHtml += `</select>`;
-                    break;
-                    
-                default: // text
-                    inputHtml = `<input type="text" class="question-input" id="currentInput" placeholder="${question.placeholder || ''}">`;
-            }
-            
-            container.innerHTML = inputHtml;
-            
-            // Restaurer la réponse si elle existe
-            const savedAnswer = questionAnswers[question.id];
-            if (savedAnswer) {
-                document.getElementById('currentInput').value = savedAnswer;
-            }
-            
-            // Mettre à jour le bouton d'envoi
-            updateSendButton(question);
-        }
-
-        function updateSendButton(question) {
-            const sendBtn = document.getElementById('sendBtn');
-            const isAnswered = answeredQuestions.has(question.id);
-            
-            if (isAnswered) {
-                sendBtn.textContent = '✅ Envoyé';
-                sendBtn.classList.add('sent');
-            } else {
-                sendBtn.textContent = 'Envoyer Réponse';
-                sendBtn.classList.remove('sent');
-            }
-        }
-
-        function updateNavigationButtons() {
-            const prevBtn = document.getElementById('prevBtn');
-            const nextBtn = document.getElementById('nextBtn');
-            
-            prevBtn.disabled = currentQuestionIndex === 0;
-            nextBtn.disabled = currentQuestionIndex === QUESTIONS.length - 1;
-        }
-
-        function updateProgressCounters() {
-            const checkCounts = {
-                mental: { answered: 0, total: 0 },
-                cardio: { answered: 0, total: 0 },
-                muscu: { answered: 0, total: 0 },
-                bilan: { answered: 0, total: 0 }
-            };
-            
-            QUESTIONS.forEach(question => {
-                checkCounts[question.check].total++;
-                if (answeredQuestions.has(question.id)) {
-                    checkCounts[question.check].answered++;
-                }
-            });
-            
-            // Mettre à jour les compteurs visuels
-            Object.keys(checkCounts).forEach(check => {
-                const count = checkCounts[check];
-                document.getElementById(`${check}Count`).textContent = `${count.answered}/${count.total}`;
+        function saveToLocalStorage(key, data) {
+            try {
+                const timestamp = new Date().toISOString();
+                const dataWithTimestamp = {
+                    ...data,
+                    timestamp: timestamp,
+                    id: Date.now()
+                };
                 
-                // Marquer comme envoyé si toutes les questions sont répondues
-                const checkElement = document.querySelector(`[data-check="${check}"]`);
-                if (count.answered === count.total && count.total > 0) {
-                    checkElement.classList.add('sent');
-                } else {
-                    checkElement.classList.remove('sent');
-                }
-            });
-            
-            // Mettre à jour le compteur global
-            document.getElementById('answersToday').textContent = answeredQuestions.size;
+                const existingData = JSON.parse(localStorage.getItem(key) || '[]');
+                existingData.push(dataWithTimestamp);
+                
+                localStorage.setItem(key, JSON.stringify(existingData));
+                return true;
+            } catch (error) {
+                console.error('Erreur sauvegarde locale:', error);
+                return false;
+            }
         }
-
-        // ============================================
-        // NAVIGATION ENTRE QUESTIONS
-        // ============================================
         
-        function previousQuestion() {
-            if (currentQuestionIndex > 0) {
-                currentQuestionIndex--;
-                showCurrentQuestion();
+        function getFromLocalStorage(key) {
+            try {
+                return JSON.parse(localStorage.getItem(key) || '[]');
+            } catch (error) {
+                console.error('Erreur lecture locale:', error);
+                return [];
             }
         }
-
-        function nextQuestion() {
-            if (currentQuestionIndex < QUESTIONS.length - 1) {
-                currentQuestionIndex++;
-                showCurrentQuestion();
-            }
-        }
-
-        function goToCheck(checkType) {
-            const firstQuestionOfCheck = QUESTIONS.findIndex(q => q.check === checkType);
-            if (firstQuestionOfCheck !== -1) {
-                currentQuestionIndex = firstQuestionOfCheck;
-                showCurrentQuestion();
-            }
+        
+        function getTodayData() {
+            const today = new Date().toISOString().split('T')[0];
+            const allAnswers = getFromLocalStorage(CONFIG.STORAGE_KEYS.ANSWERS);
+            
+            return allAnswers.filter(answer => {
+                const answerDate = new Date(answer.timestamp).toISOString().split('T')[0];
+                return answerDate === today;
+            });
         }
 
         // ============================================
-        // ENVOI DES RÉPONSES[1]
+        // ENVOI DES RÉPONSES - VERSION LOCALE
         // ============================================
         
         async function sendCurrentAnswer() {
@@ -1073,45 +179,56 @@
                 return;
             }
             
-            // Désactiver le bouton pendant l'envoi
             const sendBtn = document.getElementById('sendBtn');
             const originalText = sendBtn.textContent;
             sendBtn.disabled = true;
             sendBtn.textContent = 'Envoi...';
             
             try {
-                // Sauvegarder la réponse localement
-                questionAnswers[question.id] = answer;
-                answeredQuestions.add(question.id);
+                // Sauvegarder localement
+                const answerData = {
+                    questionId: question.id,
+                    checkType: question.check,
+                    answer: answer,
+                    questionLabel: question.label
+                };
                 
-                // Envoyer au backend
-                await sendAnswerToBackend(question, answer);
+                const saved = saveToLocalStorage(CONFIG.STORAGE_KEYS.ANSWERS, answerData);
                 
-                // Analyser avec ChatGPT[2]
-                await analyzeAnswerWithGPT(question, answer);
-                
-                // Mettre à jour l'interface
-                updateSendButton(question);
-                updateProgressCounters();
-                
-                // Animation de succès
-                sendBtn.style.transform = 'scale(1.05)';
-                setTimeout(() => {
-                    sendBtn.style.transform = 'scale(1)';
-                }, 200);
-                
-                addCoachMessage(`✅ Réponse "${question.label}" enregistrée avec succès !`);
-                
-                // Passer automatiquement à la question suivante après 1.5s
-                setTimeout(() => {
-                    if (currentQuestionIndex < QUESTIONS.length - 1) {
-                        nextQuestion();
-                    }
-                }, 1500);
+                if (saved) {
+                    // Mettre à jour l'état local
+                    questionAnswers[question.id] = answer;
+                    answeredQuestions.add(question.id);
+                    
+                    // Analyser avec ChatGPT
+                    await analyzeAnswerWithGPT(question, answer);
+                    
+                    // Mettre à jour l'interface
+                    updateSendButton(question);
+                    updateProgressCounters();
+                    updateStats();
+                    
+                    addCoachMessage(`✅ Réponse "${question.label}" enregistrée localement !`);
+                    
+                    // Animation de succès
+                    sendBtn.style.transform = 'scale(1.05)';
+                    setTimeout(() => {
+                        sendBtn.style.transform = 'scale(1)';
+                    }, 200);
+                    
+                    // Passer à la question suivante
+                    setTimeout(() => {
+                        if (currentQuestionIndex < QUESTIONS.length - 1) {
+                            nextQuestion();
+                        }
+                    }, 1500);
+                } else {
+                    throw new Error('Erreur de sauvegarde locale');
+                }
                 
             } catch (error) {
                 console.error('❌ Erreur envoi:', error);
-                addCoachMessage('❌ Erreur lors de l\'envoi. Réessayez.');
+                addCoachMessage('❌ Erreur lors de l\'enregistrement. Réessayez.');
             } finally {
                 sendBtn.disabled = false;
                 if (!answeredQuestions.has(question.id)) {
@@ -1120,39 +237,16 @@
             }
         }
 
-        async function sendAnswerToBackend(question, answer) {
-            try {
-                const payload = {
-                    action: 'submitAnswer',
-                    questionId: question.id,
-                    checkType: question.check,
-                    answer: answer,
-                    timestamp: new Date().toISOString()
-                };
-                
-                const response = await fetch(CONFIG.GOOGLE_WEB_APP_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                
-                const result = await response.json();
-                
-                if (!result.success) {
-                    throw new Error(result.error || 'Erreur serveur');
-                }
-                
-            } catch (error) {
-                console.error('❌ Erreur backend:', error);
-                throw error;
-            }
-        }
-
         // ============================================
-        // INTÉGRATION CHATGPT[2]
+        // CHATGPT INTÉGRÉ
         // ============================================
         
         async function analyzeAnswerWithGPT(question, answer) {
+            if (!CONFIG.OPENAI_API_KEY || CONFIG.OPENAI_API_KEY === 'VOTRE_CLE_OPENAI_ICI') {
+                addCoachMessage('🤖 Configuration ChatGPT nécessaire pour les conseils personnalisés.', 'system');
+                return;
+            }
+            
             try {
                 const contextData = {
                     questionId: question.id,
@@ -1186,7 +280,7 @@
                                 - Récompense les bonnes performances
                                 - Corrige les mauvaises habitudes
                                 - Maximum 80 mots par réponse
-                                - Utilise des emojis pour rendre tes conseils engageants`
+                                - Utilise des emojis militaires (⚔️, 🎯, 💪, 🔥)`
                             },
                             { 
                                 role: 'user', 
@@ -1201,7 +295,14 @@
                 const data = await response.json();
                 const coachAdvice = data.choices[0].message.content;
                 
-                // Afficher le conseil du coach
+                // Sauvegarder le feedback
+                saveToLocalStorage(CONFIG.STORAGE_KEYS.FEEDBACK, {
+                    questionId: question.id,
+                    checkType: question.check,
+                    feedback: coachAdvice
+                });
+                
+                // Afficher le conseil
                 addCoachMessage(coachAdvice, 'coach');
                 
             } catch (error) {
@@ -1209,7 +310,7 @@
                 addCoachMessage('🤖 Analyse en cours... Je reviens vers toi dans un instant.', 'system');
             }
         }
-
+        
         function buildCoachPrompt(contextData) {
             let prompt = `ANALYSE DE RÉPONSE - Jour ${contextData.day}/90\n\n`;
             prompt += `Question: ${contextData.questionLabel}\n`;
@@ -1227,66 +328,24 @@
         }
 
         // ============================================
-        // COACH IA MESSAGES
+        // CONSULTATION DES DONNÉES LOCALES
         // ============================================
         
-        function addCoachMessage(message, type = 'coach') {
-            const container = document.getElementById('coachMessages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'coach-message';
-            
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('fr-FR', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-            });
-            
-            messageDiv.innerHTML = `
-                <div class="message-time">Aujourd'hui, ${timeStr}</div>
-                <div class="message-content">${message}</div>
-            `;
-            
-            container.insertBefore(messageDiv, container.firstChild);
-            
-            // Limiter à 8 messages
-            while (container.children.length > 8) {
-                container.removeChild(container.lastChild);
-            }
-        }
-
-        function startFeedbackPolling() {
-            setInterval(fetchFeedback, CONFIG.FEEDBACK_INTERVAL);
-        }
-        
-        async function fetchFeedback() {
-            try {
-                const response = await fetch(`${CONFIG.GOOGLE_WEB_APP_URL}?action=getLatestFeedback`);
-                const data = await response.json();
-                
-                if (data.success && data.feedback) {
-                    addCoachMessage(data.feedback);
-                }
-            } catch (error) {
-                console.error('❌ Erreur feedback:', error);
-            }
-        }
-
-        // ============================================
-        // PAGE CONSULTATION[3]
-        // ============================================
-        
-        async function loadDataForDate(selectedDate) {
+        function loadDataForDate(selectedDate) {
             if (!selectedDate) return;
             
             const dataDisplay = document.getElementById('dataDisplay');
             dataDisplay.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Chargement des données...</p>';
             
             try {
-                const response = await fetch(`${CONFIG.GOOGLE_WEB_APP_URL}?action=getDataForDate&date=${selectedDate}`);
-                const data = await response.json();
+                const allAnswers = getFromLocalStorage(CONFIG.STORAGE_KEYS.ANSWERS);
+                const dayData = allAnswers.filter(answer => {
+                    const answerDate = new Date(answer.timestamp).toISOString().split('T')[0];
+                    return answerDate === selectedDate;
+                });
                 
-                if (data.success && data.data) {
-                    displayDayData(data.data, selectedDate);
+                if (dayData.length > 0) {
+                    displayDayData(dayData, selectedDate);
                 } else {
                     dataDisplay.innerHTML = `
                         <p style="text-align: center; color: var(--text-secondary); font-style: italic;">
@@ -1305,125 +364,178 @@
             }
         }
 
-        function displayDayData(dayData, date) {
-            const dataDisplay = document.getElementById('dataDisplay');
-            const formattedDate = new Date(date).toLocaleDateString('fr-FR', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+        // ============================================
+        // EXPORT/IMPORT DES DONNÉES
+        // ============================================
+        
+        function exportToCSV() {
+            const allAnswers = getFromLocalStorage(CONFIG.STORAGE_KEYS.ANSWERS);
+            
+            let csv = 'Date,Question,Type,Réponse\n';
+            
+            allAnswers.forEach(answer => {
+                const date = new Date(answer.timestamp).toLocaleDateString('fr-FR');
+                const question = answer.questionLabel || answer.questionId;
+                const type = answer.checkType;
+                const response = answer.answer.replace(/"/g, '""');
+                
+                csv += `"${date}","${question}","${type}","${response}"\n`;
             });
             
-            let html = `<h3 style="margin-bottom: 2rem; color: var(--primary);">📅 Données du ${formattedDate}</h3>`;
-            
-            // Organiser les données par check
-            const checkData = {
-                mental: { icon: '🧠', title: 'Check Mental', data: [] },
-                cardio: { icon: '🏃', title: 'Check Cardio', data: [] },
-                muscu: { icon: '💪', title: 'Check Musculation', data: [] },
-                bilan: { icon: '📊', title: 'Bilan Nutrition', data: [] }
+            downloadFile(csv, 'cockpit-combat-data.csv', 'text/csv');
+            addCoachMessage('✅ Données exportées en CSV !', 'system');
+        }
+        
+        function exportToJSON() {
+            const allData = {
+                answers: getFromLocalStorage(CONFIG.STORAGE_KEYS.ANSWERS),
+                feedback: getFromLocalStorage(CONFIG.STORAGE_KEYS.FEEDBACK),
+                stats: getFromLocalStorage(CONFIG.STORAGE_KEYS.STATS),
+                exportDate: new Date().toISOString(),
+                version: '1.0'
             };
             
-            // Grouper les réponses par check
-            dayData.forEach(item => {
-                const question = QUESTIONS.find(q => q.id === item.questionId);
-                if (question) {
-                    checkData[question.check].data.push({
-                        label: question.label,
-                        answer: item.answer,
-                        time: item.timestamp
-                    });
-                }
-            });
+            downloadFile(JSON.stringify(allData, null, 2), 'cockpit-combat-backup.json', 'application/json');
+            addCoachMessage('✅ Sauvegarde complète exportée !', 'system');
+        }
+        
+        function importData() {
+            document.getElementById('importFile').click();
+        }
+        
+        function handleImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
             
-            // Afficher chaque section
-            Object.keys(checkData).forEach(checkType => {
-                const check = checkData[checkType];
-                if (check.data.length > 0) {
-                    html += `
-                        <div class="data-section">
-                            <h4 class="data-section-title">
-                                <span>${check.icon}</span>
-                                ${check.title}
-                            </h4>
-                            <div class="data-grid">
-                    `;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
                     
-                    check.data.forEach(item => {
-                        html += `
-                            <div class="data-item">
-                                <div class="data-label">${item.label}</div>
-                                <div class="data-value">${item.answer}</div>
-                            </div>
-                        `;
-                    });
+                    if (importedData.answers) {
+                        localStorage.setItem(CONFIG.STORAGE_KEYS.ANSWERS, JSON.stringify(importedData.answers));
+                    }
+                    if (importedData.feedback) {
+                        localStorage.setItem(CONFIG.STORAGE_KEYS.FEEDBACK, JSON.stringify(importedData.feedback));
+                    }
+                    if (importedData.stats) {
+                        localStorage.setItem(CONFIG.STORAGE_KEYS.STATS, JSON.stringify(importedData.stats));
+                    }
                     
-                    html += `</div></div>`;
+                    addCoachMessage('✅ Données importées avec succès !', 'system');
+                    location.reload(); // Recharger pour appliquer les changements
+                    
+                } catch (error) {
+                    console.error('Erreur import:', error);
+                    addCoachMessage('❌ Erreur lors de l\'import. Vérifiez le fichier.', 'error');
                 }
-            });
-            
-            if (dayData.length === 0) {
-                html += `
-                    <p style="text-align: center; color: var(--text-secondary); font-style: italic;">
-                        Aucune donnée enregistrée pour cette date
-                    </p>
-                `;
+            };
+            reader.readAsText(file);
+        }
+        
+        function clearAllData() {
+            if (confirm('⚠️ ATTENTION : Cette action supprimera toutes vos données de manière définitive. Êtes-vous sûr ?')) {
+                if (confirm('Dernière confirmation : Voulez-vous vraiment effacer TOUTES les données ?')) {
+                    Object.values(CONFIG.STORAGE_KEYS).forEach(key => {
+                        localStorage.removeItem(key);
+                    });
+                    addCoachMessage('🗑️ Toutes les données ont été effacées.', 'system');
+                    location.reload();
+                }
             }
-            
-            dataDisplay.innerHTML = html;
+        }
+        
+        function downloadFile(content, filename, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(url);
         }
 
         // ============================================
-        // INITIALISATION DU DASHBOARD
+        // INITIALISATION LOCALE
         // ============================================
         
-        async function initDashboard() {
+        function initDashboard() {
             try {
-                await loadInitialData();
+                loadLocalData();
                 updateStats();
+                loadTodayAnswers();
             } catch (error) {
                 console.error('❌ Erreur initialisation:', error);
                 updateStats();
             }
         }
-
-        async function loadInitialData() {
-            try {
-                const response = await fetch(`${CONFIG.GOOGLE_WEB_APP_URL}?action=getInitialData`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    currentData = { ...currentData, ...data.data };
-                    
-                    // Restaurer les réponses existantes
-                    if (data.data.todayAnswers) {
-                        data.data.todayAnswers.forEach(answer => {
-                            questionAnswers[answer.questionId] = answer.answer;
-                            answeredQuestions.add(answer.questionId);
-                        });
-                        updateProgressCounters();
-                    }
-                }
-            } catch (error) {
-                console.error('❌ Erreur chargement:', error);
-            }
+        
+        function loadLocalData() {
+            // Calculer le jour de mission
+            const today = new Date();
+            const dayNumber = Math.floor((today - CONFIG.MISSION_START_DATE) / (1000 * 60 * 60 * 24)) + 1;
+            
+            // Compter les réponses d'aujourd'hui
+            const todayAnswers = getTodayData();
+            const answersToday = todayAnswers.length;
+            
+            // Calculer le score de discipline
+            const disciplineScore = Math.min(100, Math.round((answersToday / 17) * 100));
+            
+            currentData = {
+                day: dayNumber,
+                disciplineScore: disciplineScore,
+                answersToday: answersToday,
+                currentStreak: calculateCurrentStreak()
+            };
         }
-
+        
+        function loadTodayAnswers() {
+            const todayAnswers = getTodayData();
+            
+            todayAnswers.forEach(answer => {
+                questionAnswers[answer.questionId] = answer.answer;
+                answeredQuestions.add(answer.questionId);
+            });
+            
+            updateProgressCounters();
+        }
+        
+        function calculateCurrentStreak() {
+            // Logique simple : si plus de 10 réponses aujourd'hui = série continue
+            const todayAnswers = getTodayData();
+            return todayAnswers.length >= 10 ? 7 : Math.max(1, todayAnswers.length);
+        }
+        
         function updateStats() {
             document.getElementById('dayCounter').textContent = `Jour ${currentData.day}`;
             document.getElementById('disciplineScore').textContent = `${currentData.disciplineScore}%`;
-            document.getElementById('answersToday').textContent = currentData.answersToday || answeredQuestions.size;
+            document.getElementById('answersToday').textContent = currentData.answersToday;
             document.getElementById('currentStreak').textContent = currentData.currentStreak;
         }
 
         // ============================================
-        // GESTION DES ERREURS
+        // GARDEZ TOUTES VOS AUTRES FONCTIONS EXISTANTES
         // ============================================
         
-        window.addEventListener('error', function(e) {
-            console.error('❌ Erreur JavaScript:', e.error);
-            addCoachMessage('Erreur système détectée. Rechargement recommandé.', 'error');
-        });
+        // GARDEZ EXACTEMENT :
+        // - showCurrentQuestion()
+        // - updateQuestionDisplay()
+        // - generateQuestionInput()
+        // - previousQuestion()
+        // - nextQuestion()
+        // - addCoachMessage()
+        // - toggleTheme()
+        // - showPage()
+        // - etc.
+        
+        // REMPLACEZ SEULEMENT :
+        // - sendCurrentAnswer() (déjà fait ci-dessus)
+        // - initDashboard() (déjà fait ci-dessus)
+        // - loadDataForDate() (déjà fait ci-dessus)
+        
+        // AJOUTEZ :
+        // - Les fonctions d'export/import (déjà fait ci-dessus)
     </script>
 </body>
 </html>

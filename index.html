@@ -3,539 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cockpit de Combat - Version Locale</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        /* VOTRE CSS EXISTANT - GARDEZ-LE IDENTIQUE */
-        :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --sent-red: #dc2626;
-            --background: #f8fafc;
-            --surface: #ffffff;
-            --card-bg: rgba(255, 255, 255, 0.9);
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --border: rgba(0, 0, 0, 0.1);
-            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-            --gradient-primary: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
-            --gradient-sent: linear-gradient(135deg, var(--sent-red) 0%, #b91c1c 100%);
-        }
-
-        [data-theme="dark"] {
-            --background: #0f172a;
-            --surface: #1e293b;
-            --card-bg: rgba(30, 41, 59, 0.9);
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --border: rgba(255, 255, 255, 0.1);
-            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-        }
-
-        /* GARDEZ TOUT VOTRE CSS EXISTANT ICI */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--background); color: var(--text-primary); line-height: 1.6; transition: all 0.3s ease; min-height: 100vh; }
-        
-        /* Ajoutez juste ce CSS pour le bouton d'export */
-        .export-section {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin-top: 2rem;
-            box-shadow: var(--shadow);
-        }
-        
-        .export-buttons {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .export-btn {
-            background: var(--gradient-primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 0.75rem 1.5rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            flex: 1;
-            min-width: 150px;
-        }
-        
-        .export-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
-        }
-        
-        .export-btn.danger {
-            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
-        }
-    </style>
+    <title>Cockpit de Combat - Mission 90 Jours</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <!-- GARDEZ VOTRE HTML EXISTANT IDENTIQUE -->
-    <!-- Ajoutez juste cette section dans la page consultation -->
-    
-    <!-- SECTION EXPORT (à ajouter dans la page consultation) -->
-    <div class="export-section">
-        <h3 style="margin-bottom: 1rem; color: var(--text-primary);">📤 Export des Données</h3>
-        <div class="export-buttons">
-            <button class="export-btn" onclick="exportToCSV()">📄 Exporter CSV</button>
-            <button class="export-btn" onclick="exportToJSON()">📋 Exporter JSON</button>
-            <button class="export-btn" onclick="importData()">📥 Importer Données</button>
-            <button class="export-btn danger" onclick="clearAllData()">🗑️ Effacer Tout</button>
+    <div class="container">
+        <!-- Header avec progression mission -->
+        <header class="mission-header">
+            <div class="mission-info">
+                <h1>⚔️ COCKPIT DE COMBAT</h1>
+                <div class="soldier-info">
+                    <span>SOLDAT: ARNAUD</span>
+                    <span class="mission-day">JOUR: <span id="missionDay">1</span>/90</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="missionProgress"></div>
+                </div>
+            </div>
+            <button class="theme-toggle" id="themeToggle">🌙</button>
+        </header>
+
+        <!-- Zone principale dynamique -->
+        <main class="main-content">
+            <div class="check-container" id="checkContainer">
+                <!-- Contenu dynamique selon l'heure -->
+            </div>
+        </main>
+
+        <!-- Navigation rapide -->
+        <nav class="quick-nav">
+            <button class="nav-btn" data-check="mental">🧠 Mental</button>
+            <button class="nav-btn" data-check="cardio">❤️ Cardio</button>
+            <button class="nav-btn" data-check="muscu">💪 Muscu</button>
+            <button class="nav-btn" data-check="bilan">📊 Bilan</button>
+            <button class="nav-btn" data-check="stats">📈 Stats</button>
+        </nav>
+
+        <!-- Zone de feedback IA -->
+        <div class="ai-feedback" id="aiFeedback">
+            <div class="feedback-content">
+                <h3>🎯 ORDRE DU COACH IA</h3>
+                <div class="feedback-text" id="feedbackText"></div>
+            </div>
         </div>
-        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleImport(event)">
+
+        <!-- Modal pour consultation des données -->
+        <div class="modal" id="dataModal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>📋 Consultation des Données</h2>
+                <input type="date" id="dateSelector">
+                <div id="dataDisplay"></div>
+            </div>
+        </div>
     </div>
 
-    <script>
-        // ============================================
-        // CONFIGURATION LOCALE
-        // ============================================
-        
-        const CONFIG = {
-            OPENAI_API_KEY: 'VOTRE_CLE_OPENAI_ICI', // Remplacez par votre clé
-            MISSION_START_DATE: new Date('2025-06-26'),
-            STORAGE_KEYS: {
-                ANSWERS: 'cockpit_answers',
-                STATS: 'cockpit_stats',
-                FEEDBACK: 'cockpit_feedback',
-                THEME: 'cockpit_theme'
-            }
-        };
-
-        // GARDEZ TOUTES VOS VARIABLES GLOBALES EXISTANTES
-        let currentQuestionIndex = 0;
-        let answeredQuestions = new Set();
-        let questionAnswers = {};
-        let currentData = {
-            day: 1,
-            disciplineScore: 100,
-            answersToday: 0,
-            currentStreak: 7
-        };
-
-        // ============================================
-        // STOCKAGE LOCAL
-        // ============================================
-        
-        function saveToLocalStorage(key, data) {
-            try {
-                const timestamp = new Date().toISOString();
-                const dataWithTimestamp = {
-                    ...data,
-                    timestamp: timestamp,
-                    id: Date.now()
-                };
-                
-                const existingData = JSON.parse(localStorage.getItem(key) || '[]');
-                existingData.push(dataWithTimestamp);
-                
-                localStorage.setItem(key, JSON.stringify(existingData));
-                return true;
-            } catch (error) {
-                console.error('Erreur sauvegarde locale:', error);
-                return false;
-            }
-        }
-        
-        function getFromLocalStorage(key) {
-            try {
-                return JSON.parse(localStorage.getItem(key) || '[]');
-            } catch (error) {
-                console.error('Erreur lecture locale:', error);
-                return [];
-            }
-        }
-        
-        function getTodayData() {
-            const today = new Date().toISOString().split('T')[0];
-            const allAnswers = getFromLocalStorage(CONFIG.STORAGE_KEYS.ANSWERS);
-            
-            return allAnswers.filter(answer => {
-                const answerDate = new Date(answer.timestamp).toISOString().split('T')[0];
-                return answerDate === today;
-            });
-        }
-
-        // ============================================
-        // ENVOI DES RÉPONSES - VERSION LOCALE
-        // ============================================
-        
-        async function sendCurrentAnswer() {
-            const question = QUESTIONS[currentQuestionIndex];
-            const input = document.getElementById('currentInput');
-            const answer = input.value.trim();
-            
-            if (!answer) {
-                alert('Veuillez saisir une réponse avant d\'envoyer.');
-                return;
-            }
-            
-            const sendBtn = document.getElementById('sendBtn');
-            const originalText = sendBtn.textContent;
-            sendBtn.disabled = true;
-            sendBtn.textContent = 'Envoi...';
-            
-            try {
-                // Sauvegarder localement
-                const answerData = {
-                    questionId: question.id,
-                    checkType: question.check,
-                    answer: answer,
-                    questionLabel: question.label
-                };
-                
-                const saved = saveToLocalStorage(CONFIG.STORAGE_KEYS.ANSWERS, answerData);
-                
-                if (saved) {
-                    // Mettre à jour l'état local
-                    questionAnswers[question.id] = answer;
-                    answeredQuestions.add(question.id);
-                    
-                    // Analyser avec ChatGPT
-                    await analyzeAnswerWithGPT(question, answer);
-                    
-                    // Mettre à jour l'interface
-                    updateSendButton(question);
-                    updateProgressCounters();
-                    updateStats();
-                    
-                    addCoachMessage(`✅ Réponse "${question.label}" enregistrée localement !`);
-                    
-                    // Animation de succès
-                    sendBtn.style.transform = 'scale(1.05)';
-                    setTimeout(() => {
-                        sendBtn.style.transform = 'scale(1)';
-                    }, 200);
-                    
-                    // Passer à la question suivante
-                    setTimeout(() => {
-                        if (currentQuestionIndex < QUESTIONS.length - 1) {
-                            nextQuestion();
-                        }
-                    }, 1500);
-                } else {
-                    throw new Error('Erreur de sauvegarde locale');
-                }
-                
-            } catch (error) {
-                console.error('❌ Erreur envoi:', error);
-                addCoachMessage('❌ Erreur lors de l\'enregistrement. Réessayez.');
-            } finally {
-                sendBtn.disabled = false;
-                if (!answeredQuestions.has(question.id)) {
-                    sendBtn.textContent = originalText;
-                }
-            }
-        }
-
-        // ============================================
-        // CHATGPT INTÉGRÉ
-        // ============================================
-        
-        async function analyzeAnswerWithGPT(question, answer) {
-            if (!CONFIG.OPENAI_API_KEY || CONFIG.OPENAI_API_KEY === 'VOTRE_CLE_OPENAI_ICI') {
-                addCoachMessage('🤖 Configuration ChatGPT nécessaire pour les conseils personnalisés.', 'system');
-                return;
-            }
-            
-            try {
-                const contextData = {
-                    questionId: question.id,
-                    questionLabel: question.label,
-                    checkType: question.check,
-                    answer: answer,
-                    previousAnswers: questionAnswers,
-                    day: currentData.day
-                };
-                
-                const prompt = buildCoachPrompt(contextData);
-                
-                const response = await fetch('https://api.openai.com/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${CONFIG.OPENAI_API_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        model: 'gpt-4o-mini',
-                        messages: [
-                            { 
-                                role: 'system', 
-                                content: `Tu es un coach militaire strict et bienveillant pour Arnaud, 18 ans, en mission de transformation de 90 jours.
-                                
-                                RÈGLES ABSOLUES:
-                                - Tutoie toujours ("tu", "ton", "ta")
-                                - Sois direct mais encourageant
-                                - Donne des conseils concrets et actionnables
-                                - Si récupération nerveuse < 4 : IMPOSE un jour de récupération
-                                - Récompense les bonnes performances
-                                - Corrige les mauvaises habitudes
-                                - Maximum 80 mots par réponse
-                                - Utilise des emojis militaires (⚔️, 🎯, 💪, 🔥)`
-                            },
-                            { 
-                                role: 'user', 
-                                content: prompt 
-                            }
-                        ],
-                        max_tokens: 120,
-                        temperature: 0.7
-                    })
-                });
-                
-                const data = await response.json();
-                const coachAdvice = data.choices[0].message.content;
-                
-                // Sauvegarder le feedback
-                saveToLocalStorage(CONFIG.STORAGE_KEYS.FEEDBACK, {
-                    questionId: question.id,
-                    checkType: question.check,
-                    feedback: coachAdvice
-                });
-                
-                // Afficher le conseil
-                addCoachMessage(coachAdvice, 'coach');
-                
-            } catch (error) {
-                console.error('❌ Erreur ChatGPT:', error);
-                addCoachMessage('🤖 Analyse en cours... Je reviens vers toi dans un instant.', 'system');
-            }
-        }
-        
-        function buildCoachPrompt(contextData) {
-            let prompt = `ANALYSE DE RÉPONSE - Jour ${contextData.day}/90\n\n`;
-            prompt += `Question: ${contextData.questionLabel}\n`;
-            prompt += `Réponse d'Arnaud: "${contextData.answer}"\n`;
-            prompt += `Type de check: ${contextData.checkType}\n\n`;
-            
-            // Ajouter contexte des réponses précédentes si pertinent
-            if (contextData.checkType === 'mental' && contextData.previousAnswers.q4_recuperation) {
-                prompt += `Récupération nerveuse: ${contextData.previousAnswers.q4_recuperation}/10\n`;
-            }
-            
-            prompt += `\nDonne un conseil court et actionnable basé sur cette réponse:`;
-            
-            return prompt;
-        }
-
-        // ============================================
-        // CONSULTATION DES DONNÉES LOCALES
-        // ============================================
-        
-        function loadDataForDate(selectedDate) {
-            if (!selectedDate) return;
-            
-            const dataDisplay = document.getElementById('dataDisplay');
-            dataDisplay.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Chargement des données...</p>';
-            
-            try {
-                const allAnswers = getFromLocalStorage(CONFIG.STORAGE_KEYS.ANSWERS);
-                const dayData = allAnswers.filter(answer => {
-                    const answerDate = new Date(answer.timestamp).toISOString().split('T')[0];
-                    return answerDate === selectedDate;
-                });
-                
-                if (dayData.length > 0) {
-                    displayDayData(dayData, selectedDate);
-                } else {
-                    dataDisplay.innerHTML = `
-                        <p style="text-align: center; color: var(--text-secondary); font-style: italic;">
-                            Aucune donnée trouvée pour le ${new Date(selectedDate).toLocaleDateString('fr-FR')}
-                        </p>
-                    `;
-                }
-                
-            } catch (error) {
-                console.error('❌ Erreur chargement données:', error);
-                dataDisplay.innerHTML = `
-                    <p style="text-align: center; color: var(--danger);">
-                        Erreur lors du chargement des données
-                    </p>
-                `;
-            }
-        }
-
-        // ============================================
-        // EXPORT/IMPORT DES DONNÉES
-        // ============================================
-        
-        function exportToCSV() {
-            const allAnswers = getFromLocalStorage(CONFIG.STORAGE_KEYS.ANSWERS);
-            
-            let csv = 'Date,Question,Type,Réponse\n';
-            
-            allAnswers.forEach(answer => {
-                const date = new Date(answer.timestamp).toLocaleDateString('fr-FR');
-                const question = answer.questionLabel || answer.questionId;
-                const type = answer.checkType;
-                const response = answer.answer.replace(/"/g, '""');
-                
-                csv += `"${date}","${question}","${type}","${response}"\n`;
-            });
-            
-            downloadFile(csv, 'cockpit-combat-data.csv', 'text/csv');
-            addCoachMessage('✅ Données exportées en CSV !', 'system');
-        }
-        
-        function exportToJSON() {
-            const allData = {
-                answers: getFromLocalStorage(CONFIG.STORAGE_KEYS.ANSWERS),
-                feedback: getFromLocalStorage(CONFIG.STORAGE_KEYS.FEEDBACK),
-                stats: getFromLocalStorage(CONFIG.STORAGE_KEYS.STATS),
-                exportDate: new Date().toISOString(),
-                version: '1.0'
-            };
-            
-            downloadFile(JSON.stringify(allData, null, 2), 'cockpit-combat-backup.json', 'application/json');
-            addCoachMessage('✅ Sauvegarde complète exportée !', 'system');
-        }
-        
-        function importData() {
-            document.getElementById('importFile').click();
-        }
-        
-        function handleImport(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    
-                    if (importedData.answers) {
-                        localStorage.setItem(CONFIG.STORAGE_KEYS.ANSWERS, JSON.stringify(importedData.answers));
-                    }
-                    if (importedData.feedback) {
-                        localStorage.setItem(CONFIG.STORAGE_KEYS.FEEDBACK, JSON.stringify(importedData.feedback));
-                    }
-                    if (importedData.stats) {
-                        localStorage.setItem(CONFIG.STORAGE_KEYS.STATS, JSON.stringify(importedData.stats));
-                    }
-                    
-                    addCoachMessage('✅ Données importées avec succès !', 'system');
-                    location.reload(); // Recharger pour appliquer les changements
-                    
-                } catch (error) {
-                    console.error('Erreur import:', error);
-                    addCoachMessage('❌ Erreur lors de l\'import. Vérifiez le fichier.', 'error');
-                }
-            };
-            reader.readAsText(file);
-        }
-        
-        function clearAllData() {
-            if (confirm('⚠️ ATTENTION : Cette action supprimera toutes vos données de manière définitive. Êtes-vous sûr ?')) {
-                if (confirm('Dernière confirmation : Voulez-vous vraiment effacer TOUTES les données ?')) {
-                    Object.values(CONFIG.STORAGE_KEYS).forEach(key => {
-                        localStorage.removeItem(key);
-                    });
-                    addCoachMessage('🗑️ Toutes les données ont été effacées.', 'system');
-                    location.reload();
-                }
-            }
-        }
-        
-        function downloadFile(content, filename, contentType) {
-            const blob = new Blob([content], { type: contentType });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = filename;
-            link.click();
-            URL.revokeObjectURL(url);
-        }
-
-        // ============================================
-        // INITIALISATION LOCALE
-        // ============================================
-        
-        function initDashboard() {
-            try {
-                loadLocalData();
-                updateStats();
-                loadTodayAnswers();
-            } catch (error) {
-                console.error('❌ Erreur initialisation:', error);
-                updateStats();
-            }
-        }
-        
-        function loadLocalData() {
-            // Calculer le jour de mission
-            const today = new Date();
-            const dayNumber = Math.floor((today - CONFIG.MISSION_START_DATE) / (1000 * 60 * 60 * 24)) + 1;
-            
-            // Compter les réponses d'aujourd'hui
-            const todayAnswers = getTodayData();
-            const answersToday = todayAnswers.length;
-            
-            // Calculer le score de discipline
-            const disciplineScore = Math.min(100, Math.round((answersToday / 17) * 100));
-            
-            currentData = {
-                day: dayNumber,
-                disciplineScore: disciplineScore,
-                answersToday: answersToday,
-                currentStreak: calculateCurrentStreak()
-            };
-        }
-        
-        function loadTodayAnswers() {
-            const todayAnswers = getTodayData();
-            
-            todayAnswers.forEach(answer => {
-                questionAnswers[answer.questionId] = answer.answer;
-                answeredQuestions.add(answer.questionId);
-            });
-            
-            updateProgressCounters();
-        }
-        
-        function calculateCurrentStreak() {
-            // Logique simple : si plus de 10 réponses aujourd'hui = série continue
-            const todayAnswers = getTodayData();
-            return todayAnswers.length >= 10 ? 7 : Math.max(1, todayAnswers.length);
-        }
-        
-        function updateStats() {
-            document.getElementById('dayCounter').textContent = `Jour ${currentData.day}`;
-            document.getElementById('disciplineScore').textContent = `${currentData.disciplineScore}%`;
-            document.getElementById('answersToday').textContent = currentData.answersToday;
-            document.getElementById('currentStreak').textContent = currentData.currentStreak;
-        }
-
-        // ============================================
-        // GARDEZ TOUTES VOS AUTRES FONCTIONS EXISTANTES
-        // ============================================
-        
-        // GARDEZ EXACTEMENT :
-        // - showCurrentQuestion()
-        // - updateQuestionDisplay()
-        // - generateQuestionInput()
-        // - previousQuestion()
-        // - nextQuestion()
-        // - addCoachMessage()
-        // - toggleTheme()
-        // - showPage()
-        // - etc.
-        
-        // REMPLACEZ SEULEMENT :
-        // - sendCurrentAnswer() (déjà fait ci-dessus)
-        // - initDashboard() (déjà fait ci-dessus)
-        // - loadDataForDate() (déjà fait ci-dessus)
-        
-        // AJOUTEZ :
-        // - Les fonctions d'export/import (déjà fait ci-dessus)
-    </script>
+    <script src="js/github-api.js"></script>
+    <script src="js/chatgpt-api.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>

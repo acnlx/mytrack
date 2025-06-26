@@ -13,10 +13,11 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             min-height: 100vh;
             padding: 20px;
             color: white;
+            overflow-x: hidden;
         }
 
         .container {
@@ -200,6 +201,41 @@
         .hidden {
             display: none;
         }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .conditional-fields {
+            display: none;
+        }
+
+        .conditional-fields.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -267,7 +303,11 @@
 
         <!-- Section Mental & Physiologie -->
         <div class="glass form-section" id="mental-section">
-            <h2>🧠 MENTAL & PHYSIOLOGIE</h2>
+            <button class="back-button" onclick="showMainChecklist()">← Retour</button>
+            <div class="section-header">
+                <span class="item-emoji">🧠</span>
+                <h2>MENTAL & PHYSIOLOGIE</h2>
+            </div>
             
             <div class="form-group">
                 <label class="form-label">🧠 Ce matin, t'as la tête comment ?</label>
@@ -276,7 +316,7 @@
 
             <div class="form-group">
                 <label class="form-label">😴 Heures de sommeil</label>
-                <input type="number" class="form-input" id="sleep-hours" min="0" max="24" step="0.5">
+                <input type="number" class="form-input" id="sleep-hours" min="0" max="24" step="0.5" placeholder="8.5">
             </div>
 
             <div class="form-group">
@@ -325,47 +365,53 @@
 
         <!-- Section Cardio & Poids -->
         <div class="glass form-section" id="cardio-section">
-            <h2>🏃 CARDIO & POIDS</h2>
+            <button class="back-button" onclick="showMainChecklist()">← Retour</button>
+            <div class="section-header">
+                <span class="item-emoji">🏃</span>
+                <h2>CARDIO & POIDS</h2>
+            </div>
             
             <div class="form-group">
                 <label class="form-label">🏃 T'as couru ce matin ?</label>
-                <select class="form-select" id="cardio-done">
+                <select class="form-select" id="cardio-done" onchange="toggleCardioFields()">
                     <option value="">Sélectionner</option>
                     <option value="oui">Oui</option>
                     <option value="non">Non</option>
                 </select>
             </div>
 
-            <div class="form-group" id="cardio-details" style="display: none;">
-                <label class="form-label">📏 Combien de km ?</label>
-                <input type="number" class="form-input" id="cardio-distance" step="0.1" min="0">
-            </div>
+            <div class="conditional-fields" id="cardio-fields">
+                <div class="form-group">
+                    <label class="form-label">📏 Combien de km ?</label>
+                    <input type="number" class="form-input" id="cardio-distance" step="0.1" min="0" placeholder="5.2">
+                </div>
 
-            <div class="form-group" id="cardio-time" style="display: none;">
-                <label class="form-label">⏱️ Temps (minutes)</label>
-                <input type="number" class="form-input" id="cardio-duration" min="0">
-            </div>
+                <div class="form-group">
+                    <label class="form-label">⏱️ Temps (minutes)</label>
+                    <input type="number" class="form-input" id="cardio-duration" min="0" placeholder="30">
+                </div>
 
-            <div class="form-group" id="cardio-rpe" style="display: none;">
-                <label class="form-label">💪 RPE (1-10)</label>
-                <select class="form-select" id="cardio-intensity">
-                    <option value="">Sélectionner</option>
-                    <option value="1">1 - Très facile</option>
-                    <option value="2">2 - Facile</option>
-                    <option value="3">3 - Modéré</option>
-                    <option value="4">4 - Un peu dur</option>
-                    <option value="5">5 - Dur</option>
-                    <option value="6">6 - Dur+</option>
-                    <option value="7">7 - Très dur</option>
-                    <option value="8">8 - Très dur+</option>
-                    <option value="9">9 - Extrême</option>
-                    <option value="10">10 - Maximum</option>
-                </select>
+                <div class="form-group">
+                    <label class="form-label">💪 RPE (1-10)</label>
+                    <select class="form-select" id="cardio-intensity">
+                        <option value="">Sélectionner</option>
+                        <option value="1">1 - Très facile</option>
+                        <option value="2">2 - Facile</option>
+                        <option value="3">3 - Modéré</option>
+                        <option value="4">4 - Un peu dur</option>
+                        <option value="5">5 - Dur</option>
+                        <option value="6">6 - Dur+</option>
+                        <option value="7">7 - Très dur</option>
+                        <option value="8">8 - Très dur+</option>
+                        <option value="9">9 - Extrême</option>
+                        <option value="10">10 - Maximum</option>
+                    </select>
+                </div>
             </div>
 
             <div class="form-group">
                 <label class="form-label">⚖️ Poids (kg)</label>
-                <input type="number" class="form-input" id="weight" step="0.1" min="0">
+                <input type="number" class="form-input" id="weight" step="0.1" min="0" placeholder="75.2">
             </div>
 
             <button class="btn btn-primary" onclick="validateSection('cardio')">
@@ -375,53 +421,59 @@
 
         <!-- Section Muscu & Dépassement -->
         <div class="glass form-section" id="muscu-section">
-            <h2>💪 MUSCU & DÉPASSEMENT</h2>
+            <button class="back-button" onclick="showMainChecklist()">← Retour</button>
+            <div class="section-header">
+                <span class="item-emoji">💪</span>
+                <h2>MUSCU & DÉPASSEMENT</h2>
+            </div>
             
             <div class="form-group">
                 <label class="form-label">💪 Muscu faite ?</label>
-                <select class="form-select" id="muscu-done">
+                <select class="form-select" id="muscu-done" onchange="toggleMuscuFields()">
                     <option value="">Sélectionner</option>
                     <option value="oui">Oui</option>
                     <option value="non">Non</option>
                 </select>
             </div>
 
-            <div class="form-group" id="muscu-details" style="display: none;">
-                <label class="form-label">⏱️ Durée (min)</label>
-                <input type="number" class="form-input" id="muscu-duration" min="0">
-            </div>
+            <div class="conditional-fields" id="muscu-fields">
+                <div class="form-group">
+                    <label class="form-label">⏱️ Durée (min)</label>
+                    <input type="number" class="form-input" id="muscu-duration" min="0" placeholder="45">
+                </div>
 
-            <div class="form-group" id="muscu-quality" style="display: none;">
-                <label class="form-label">🔥 Qualité</label>
-                <select class="form-select" id="muscu-quality-rating">
-                    <option value="">Sélectionner</option>
-                    <option value="mauvaise">Mauvaise</option>
-                    <option value="moyenne">Moyenne</option>
-                    <option value="bonne">Bonne</option>
-                    <option value="excellente">Excellente</option>
-                </select>
-            </div>
+                <div class="form-group">
+                    <label class="form-label">🔥 Qualité</label>
+                    <select class="form-select" id="muscu-quality">
+                        <option value="">Sélectionner</option>
+                        <option value="mauvaise">Mauvaise</option>
+                        <option value="moyenne">Moyenne</option>
+                        <option value="bonne">Bonne</option>
+                        <option value="excellente">Excellente</option>
+                    </select>
+                </div>
 
-            <div class="form-group" id="muscu-rpe" style="display: none;">
-                <label class="form-label">💪 RPE (1-10)</label>
-                <select class="form-select" id="muscu-intensity">
-                    <option value="">Sélectionner</option>
-                    <option value="1">1 - Très facile</option>
-                    <option value="2">2 - Facile</option>
-                    <option value="3">3 - Modéré</option>
-                    <option value="4">4 - Un peu dur</option>
-                    <option value="5">5 - Dur</option>
-                    <option value="6">6 - Dur+</option>
-                    <option value="7">7 - Très dur</option>
-                    <option value="8">8 - Très dur+</option>
-                    <option value="9">9 - Extrême</option>
-                    <option value="10">10 - Maximum</option>
-                </select>
-            </div>
+                <div class="form-group">
+                    <label class="form-label">💪 RPE (1-10)</label>
+                    <select class="form-select" id="muscu-intensity">
+                        <option value="">Sélectionner</option>
+                        <option value="1">1 - Très facile</option>
+                        <option value="2">2 - Facile</option>
+                        <option value="3">3 - Modéré</option>
+                        <option value="4">4 - Un peu dur</option>
+                        <option value="5">5 - Dur</option>
+                        <option value="6">6 - Dur+</option>
+                        <option value="7">7 - Très dur</option>
+                        <option value="8">8 - Très dur+</option>
+                        <option value="9">9 - Extrême</option>
+                        <option value="10">10 - Maximum</option>
+                    </select>
+                </div>
 
-            <div class="form-group" id="muscu-notes" style="display: none;">
-                <label class="form-label">🚀 Action de dépassement</label>
-                <textarea class="form-textarea" id="muscu-breakthrough" placeholder="Qu'as-tu fait pour te dépasser aujourd'hui ?"></textarea>
+                <div class="form-group">
+                    <label class="form-label">🚀 Action de dépassement</label>
+                    <textarea class="form-textarea" id="muscu-breakthrough" placeholder="Qu'as-tu fait pour te dépasser aujourd'hui ?"></textarea>
+                </div>
             </div>
 
             <button class="btn btn-primary" onclick="validateSection('muscu')">
@@ -431,7 +483,11 @@
 
         <!-- Section Bilan Journalier -->
         <div class="glass form-section" id="bilan-section">
-            <h2>📝 BILAN JOURNALIER</h2>
+            <button class="back-button" onclick="showMainChecklist()">← Retour</button>
+            <div class="section-header">
+                <span class="item-emoji">📝</span>
+                <h2>BILAN JOURNALIER</h2>
+            </div>
             
             <div class="form-group">
                 <label class="form-label">📝 Notes de la journée</label>
@@ -458,8 +514,7 @@
         // Configuration Airtable
         const AIRTABLE_BASE_ID = 'appizAgKmYhccoFFB';
         const AIRTABLE_API_KEY = 'patk6JMmaYQvqeds6.9d4e1b0b93c5c08de4fbd33bbd6d6a79e3a05d0c4c9863e980b64fda9f82647e';
-        const AIRTABLE_CHECKS_TABLE = 'Checks';
-        const AIRTABLE_REVIEWS_TABLE = 'Weekly Reviews';
+        const AIRTABLE_TABLE_NAME = 'Checks';
 
         // État de l'application
         let currentSection = null;
@@ -469,14 +524,13 @@
         // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
             testConnection();
-            loadTodayData();
             setupEventListeners();
         });
 
         // Test de connexion Airtable
         async function testConnection() {
             try {
-                const response = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_CHECKS_TABLE}?maxRecords=1`, {
+                const response = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME}?maxRecords=1`, {
                     headers: {
                         'Authorization': `Bearer ${AIRTABLE_API_KEY}`
                     }
@@ -503,35 +557,6 @@
             statusEl.className = `connection-status connection-${status}`;
         }
 
-        // Chargement des données du jour
-        async function loadTodayData() {
-            if (!isOnline) return;
-
-            try {
-                const today = new Date().toISOString().split('T')[0];
-                const response = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_CHECKS_TABLE}?filterByFormula={Date}='${today}'`, {
-                    headers: {
-                        'Authorization': `Bearer ${AIRTABLE_API_KEY}`
-                    }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.records.length > 0) {
-                        populateFormData(data.records[0].fields);
-                    }
-                }
-            } catch (error) {
-                console.error('Erreur chargement données:', error);
-            }
-        }
-
-        // Remplissage des formulaires avec les données existantes
-        function populateFormData(fields) {
-            // Implémentation du remplissage des champs
-            console.log('Données chargées:', fields);
-        }
-
         // Configuration des event listeners
         function setupEventListeners() {
             // Gestion des clics sur les items de checklist
@@ -541,21 +566,6 @@
                     if (section) {
                         showSection(section);
                     }
-                });
-            });
-
-            // Gestion des champs conditionnels
-            document.getElementById('cardio-done').addEventListener('change', function() {
-                const details = document.querySelectorAll('#cardio-details, #cardio-time, #cardio-rpe');
-                details.forEach(el => {
-                    el.style.display = this.value === 'oui' ? 'block' : 'none';
-                });
-            });
-
-            document.getElementById('muscu-done').addEventListener('change', function() {
-                const details = document.querySelectorAll('#muscu-details, #muscu-quality, #muscu-rpe, #muscu-notes');
-                details.forEach(el => {
-                    el.style.display = this.value === 'oui' ? 'block' : 'none';
                 });
             });
         }
@@ -587,6 +597,29 @@
             currentSection = null;
         }
 
+        // Gestion des champs conditionnels
+        function toggleCardioFields() {
+            const cardioFields = document.getElementById('cardio-fields');
+            const cardioDone = document.getElementById('cardio-done').value;
+            
+            if (cardioDone === 'oui') {
+                cardioFields.classList.add('show');
+            } else {
+                cardioFields.classList.remove('show');
+            }
+        }
+
+        function toggleMuscuFields() {
+            const muscuFields = document.getElementById('muscu-fields');
+            const muscuDone = document.getElementById('muscu-done').value;
+            
+            if (muscuDone === 'oui') {
+                muscuFields.classList.add('show');
+            } else {
+                muscuFields.classList.remove('show');
+            }
+        }
+
         // Validation d'une section
         async function validateSection(sectionName) {
             const formData = collectFormData(sectionName);
@@ -598,6 +631,7 @@
                     showMainChecklist();
                 } else {
                     alert('Erreur lors de la sauvegarde. Données sauvées localement.');
+                    saveToLocalStorage(formData);
                     markSectionCompleted(sectionName);
                     showMainChecklist();
                 }
@@ -617,26 +651,50 @@
             };
 
             if (sectionName === 'mental') {
-                data['Mental Mood'] = document.getElementById('mental-mood').value;
-                data['Sleep Hours'] = parseFloat(document.getElementById('sleep-hours').value) || null;
-                data['Sleep Quality'] = parseInt(document.getElementById('sleep-quality').value) || null;
-                data['Recovery'] = parseInt(document.getElementById('recovery').value) || null;
-                data['Daily Goal'] = document.getElementById('daily-goal').value;
+                const mentalMood = document.getElementById('mental-mood').value;
+                const sleepHours = document.getElementById('sleep-hours').value;
+                const sleepQuality = document.getElementById('sleep-quality').value;
+                const recovery = document.getElementById('recovery').value;
+                const dailyGoal = document.getElementById('daily-goal').value;
+
+                if (mentalMood) data['Daily Notes'] = mentalMood;
+                if (sleepHours) data['Sleep Hours'] = parseFloat(sleepHours);
+                if (sleepQuality) data['Sleep Quality'] = parseInt(sleepQuality);
+                if (recovery) data['Recovery'] = parseInt(recovery);
+                if (dailyGoal) data['Daily Goal'] = dailyGoal;
+
             } else if (sectionName === 'cardio') {
-                data['Cardio Done'] = document.getElementById('cardio-done').value === 'oui';
-                data['Cardio Distance'] = parseFloat(document.getElementById('cardio-distance').value) || null;
-                data['Cardio Duration'] = parseInt(document.getElementById('cardio-duration').value) || null;
-                data['Cardio Intensity'] = parseInt(document.getElementById('cardio-intensity').value) || null;
-                data['Weight'] = parseFloat(document.getElementById('weight').value) || null;
+                const cardioDone = document.getElementById('cardio-done').value;
+                const cardioDistance = document.getElementById('cardio-distance').value;
+                const cardioDuration = document.getElementById('cardio-duration').value;
+                const cardioIntensity = document.getElementById('cardio-intensity').value;
+                const weight = document.getElementById('weight').value;
+
+                if (cardioDone) data['Cardio Done'] = cardioDone === 'oui';
+                if (cardioDistance) data['Cardio Distance'] = parseFloat(cardioDistance);
+                if (cardioDuration) data['Cardio Duration'] = parseInt(cardioDuration);
+                if (cardioIntensity) data['Cardio Intensity'] = parseInt(cardioIntensity);
+                if (weight) data['Weight'] = parseFloat(weight);
+
             } else if (sectionName === 'muscu') {
-                data['Muscle Training Done'] = document.getElementById('muscu-done').value === 'oui';
-                data['Muscu Duration'] = parseInt(document.getElementById('muscu-duration').value) || null;
-                data['Muscu Quality'] = document.getElementById('muscu-quality-rating').value;
-                data['Muscu Intensity'] = parseInt(document.getElementById('muscu-intensity').value) || null;
-                data['Muscu Notes'] = document.getElementById('muscu-breakthrough').value;
+                const muscuDone = document.getElementById('muscu-done').value;
+                const muscuDuration = document.getElementById('muscu-duration').value;
+                const muscuQuality = document.getElementById('muscu-quality').value;
+                const muscuIntensity = document.getElementById('muscu-intensity').value;
+                const muscuBreakthrough = document.getElementById('muscu-breakthrough').value;
+
+                if (muscuDone) data['Muscle Training Done'] = muscuDone === 'oui';
+                if (muscuDuration) data['Muscu Duration'] = parseInt(muscuDuration);
+                if (muscuQuality) data['Muscu Quality'] = muscuQuality;
+                if (muscuIntensity) data['Muscu Intensity'] = parseInt(muscuIntensity);
+                if (muscuBreakthrough) data['Muscu Notes'] = muscuBreakthrough;
+
             } else if (sectionName === 'bilan') {
-                data['Daily Notes'] = document.getElementById('daily-notes').value;
-                data['Nutrition Ok'] = document.getElementById('nutrition').value === 'oui';
+                const dailyNotes = document.getElementById('daily-notes').value;
+                const nutrition = document.getElementById('nutrition').value;
+
+                if (dailyNotes) data['Daily Notes'] = dailyNotes;
+                if (nutrition) data['Nutrition Ok'] = nutrition === 'oui';
             }
 
             return data;
@@ -645,22 +703,29 @@
         // Sauvegarde vers Airtable
         async function saveToAirtable(data) {
             try {
-                const response = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_CHECKS_TABLE}`, {
+                console.log('📤 Envoi vers Airtable:', data);
+                
+                const response = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME}`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        fields: data
+                        records: [{
+                            fields: data
+                        }],
+                        typecast: true
                     })
                 });
 
                 if (response.ok) {
-                    console.log('✅ Données sauvegardées dans Airtable');
+                    const result = await response.json();
+                    console.log('✅ Données sauvegardées dans Airtable:', result);
                     return true;
                 } else {
-                    console.error('❌ Erreur sauvegarde Airtable:', response.status);
+                    const errorText = await response.text();
+                    console.error('❌ Erreur sauvegarde Airtable:', response.status, errorText);
                     return false;
                 }
             } catch (error) {
@@ -698,23 +763,6 @@
         // Affichage du bilan hebdomadaire
         function showWeeklyReview() {
             alert('Fonctionnalité bilan hebdomadaire à venir !');
-        }
-
-        // Synchronisation des données locales (à appeler quand la connexion revient)
-        async function syncLocalData() {
-            if (!isOnline) return;
-
-            const localData = JSON.parse(localStorage.getItem('cockpitData') || '[]');
-            const unsyncedData = localData.filter(item => !item.synced);
-
-            for (const item of unsyncedData) {
-                const success = await saveToAirtable(item);
-                if (success) {
-                    item.synced = true;
-                }
-            }
-
-            localStorage.setItem('cockpitData', JSON.stringify(localData));
         }
     </script>
 </body>

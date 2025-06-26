@@ -778,38 +778,47 @@
 
         // INTÉGRATION AIRTABLE
         async function sendToAirtable(data, dataType) {
-            try {
-                const url = `https://api.airtable.com/v0/${airtableConfig.baseId}/${airtableConfig.tableName}`;
-                
-                // Préparer les données selon le format AirTable
-                const airtableData = {
-                    fields: {
-                        Date: data.date || new Date().toISOString().split('T')[0],
-                        Type: dataType,
-                        Data: JSON.stringify(data),
-                        ...data // Ajouter tous les champs individuellement
-                    }
-                };
-
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${airtableConfig.token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(airtableData)
-                });
-
-                if (response.ok) {
-                    showNotification('✅ Données synchronisées avec AirTable', 'success');
-                } else {
-                    throw new Error(`Erreur AirTable: ${response.status}`);
-                }
-            } catch (error) {
-                console.error('Erreur AirTable:', error);
-                showNotification('❌ Erreur de synchronisation AirTable', 'error');
+    try {
+        // Encoder correctement le nom de la table pour l'URL
+        const encodedTableName = encodeURIComponent(airtableConfig.tableName);
+        const url = `https://api.airtable.com/v0/${airtableConfig.baseId}/${encodedTableName}`;
+        
+        console.log('URL AirTable:', url); // Pour debug
+        
+        const airtableData = {
+            fields: {
+                Date: data.date || new Date().toISOString().split('T')[0],
+                Type: dataType,
+                ...data
             }
+        };
+
+        console.log('Données envoyées:', airtableData); // Pour debug
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${airtableConfig.token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(airtableData)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Succès AirTable:', result);
+            showNotification('✅ Données synchronisées avec AirTable', 'success');
+        } else {
+            const errorData = await response.json();
+            console.error('Erreur AirTable détaillée:', errorData);
+            throw new Error(`Erreur AirTable: ${response.status} - ${errorData.error?.message || 'Erreur inconnue'}`);
         }
+    } catch (error) {
+        console.error('Erreur AirTable:', error);
+        showNotification(`❌ Erreur: ${error.message}`, 'error');
+    }
+}
+
 
         // FORMULAIRES
         document.getElementById('dailyForm').addEventListener('submit', function(e) {

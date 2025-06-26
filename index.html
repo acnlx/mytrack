@@ -3,23 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRACKER DE VIE - Tableau de Bord</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <title>Cockpit de Combat - Mission 90 Jours</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
+            /* Mode Jour */
             --primary: #6366f1;
             --primary-dark: #4f46e5;
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
-            --dark: #0f172a;
-            --dark-light: #1e293b;
-            --gray: #64748b;
-            --gray-light: #94a3b8;
-            --white: #ffffff;
-            --border: #334155;
+            --sent-red: #dc2626; /* BEAU ROUGE pour les cases envoyées */
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border: rgba(0, 0, 0, 0.1);
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+            --gradient-sent: linear-gradient(135deg, var(--sent-red) 0%, #b91c1c 100%);
+        }
+
+        [data-theme="dark"] {
+            --background: #0f172a;
+            --surface: #1e293b;
+            --card-bg: rgba(30, 41, 59, 0.9);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
         }
 
         * {
@@ -30,1210 +43,1387 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--dark) 0%, #1a1a2e 50%, #16213e 100%);
-            color: var(--white);
-            min-height: 100vh;
+            background: var(--background);
+            color: var(--text-primary);
             line-height: 1.6;
+            transition: all 0.3s ease;
+            min-height: 100vh;
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 1.5rem;
+        /* NAVIGATION PRINCIPALE */
+        .main-nav {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        /* HEADER */
-        .header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            border-radius: 20px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 1.1rem;
-        }
-
-        /* NAVIGATION ONGLETS */
-        .tabs-nav {
+        .nav-content {
             display: flex;
-            background: var(--dark-light);
-            border-radius: 16px;
-            padding: 0.5rem;
-            margin-bottom: 2rem;
-            gap: 0.5rem;
-            overflow-x: auto;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        .tab-btn {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: var(--gray-light);
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
+        .app-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .theme-toggle {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            width: 60px;
+            height: 30px;
+            position: relative;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-weight: 500;
-            white-space: nowrap;
         }
 
-        .tab-btn.active {
-            background: var(--primary);
-            color: var(--white);
-            transform: translateY(-2px);
+        .theme-toggle::before {
+            content: '🌙';
+            position: absolute;
+            top: 50%;
+            left: 4px;
+            transform: translateY(-50%);
+            font-size: 16px;
+            transition: all 0.3s ease;
         }
 
-        .tab-btn:hover:not(.active) {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--white);
+        [data-theme="dark"] .theme-toggle::before {
+            content: '☀️';
+            left: 32px;
         }
 
-        /* CONTENU ONGLETS */
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.5s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* PANELS */
-        .panel {
-            background: var(--dark-light);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .panel-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            color: var(--white);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .panel-title::before {
+        .theme-toggle::after {
             content: '';
-            width: 4px;
-            height: 20px;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
             background: var(--primary);
-            border-radius: 2px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
         }
 
-        /* DASHBOARD GRID */
-        .dashboard-grid {
+        [data-theme="dark"] .theme-toggle::after {
+            transform: translateX(28px);
+        }
+
+        /* PAGES */
+        .page {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* PAGE COCKPIT */
+        .cockpit-layout {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: 1fr;
             gap: 2rem;
+        }
+
+        @media (min-width: 1024px) {
+            .cockpit-layout {
+                grid-template-columns: 1fr 350px;
+            }
+        }
+
+        /* STATS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
             margin-bottom: 2rem;
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
             border-radius: 16px;
             padding: 1.5rem;
             text-align: center;
-            transition: transform 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
         }
 
         .stat-value {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 700;
             color: var(--primary);
             margin-bottom: 0.5rem;
         }
 
         .stat-label {
-            color: var(--gray-light);
-            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
         }
 
-        /* GRAPHIQUES */
-        .chart-container {
-            background: var(--dark);
-            border-radius: 16px;
-            padding: 1.5rem;
-            height: 400px;
-            margin-bottom: 1rem;
-        }
-
-        .chart-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--white);
-        }
-
-        /* OBJECTIFS */
-        .objectives-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .objective-card {
-            background: var(--dark);
-            border-radius: 16px;
-            padding: 1.5rem;
+        /* PROGRESSION VISUELLE */
+        .progress-overview {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
             border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
         }
 
-        .objective-title {
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--white);
+        .progress-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
         }
 
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: var(--border);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 0.5rem;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--success), var(--primary));
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-
-        .progress-text {
-            font-size: 0.9rem;
-            color: var(--gray-light);
-        }
-
-        /* FORMULAIRES */
-        .form-grid {
+        .checks-overview {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--white);
-            font-size: 0.9rem;
-        }
-
-        .form-input, .form-select, .form-textarea {
-            width: 100%;
-            padding: 0.75rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            color: var(--white);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.9rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .form-textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: var(--white);
-            border: none;
-            padding: 0.75rem 2rem;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            width: 100%;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
-        }
-
-        /* PERSONNALISATION */
-        .customization-panel {
-            background: var(--dark);
-            border-radius: 16px;
-            padding: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
             margin-bottom: 2rem;
         }
 
-        .checkbox-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        .check-overview-item {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .check-overview-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .check-overview-item.sent {
+            border-color: var(--sent-red);
+            background: var(--gradient-sent);
+            color: white;
+        }
+
+        .check-overview-item.sent .check-overview-icon {
+            filter: brightness(0) invert(1);
+        }
+
+        .check-overview-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .check-overview-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .check-overview-count {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        /* QUESTION ACTUELLE */
+        .current-question {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .question-info {
+            display: flex;
+            align-items: center;
             gap: 1rem;
         }
 
-        .checkbox-item {
+        .question-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .question-details h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .question-meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .question-counter {
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .question-content {
+            margin-bottom: 2rem;
+        }
+
+        .question-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .question-input, .question-select, .question-textarea {
+            width: 100%;
+            padding: 1rem;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .question-input:focus, .question-select:focus, .question-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .question-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .question-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+        }
+
+        .nav-question-btn {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .nav-question-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .nav-question-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .send-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 2;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px -12px rgba(99, 102, 241, 0.4);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .send-btn.sent {
+            background: var(--gradient-sent);
+        }
+
+        /* COACH IA */
+        .coach-section {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .coach-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .coach-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .coach-info h3 {
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .coach-status {
+            font-size: 0.85rem;
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        .coach-messages {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .coach-message {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            animation: messageSlide 0.3s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .message-time {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .message-content {
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        /* PAGE CONSULTATION */
+        .consultation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .consultation-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .date-selector {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 0.75rem;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+        }
+
+        .data-display {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .data-section {
+            margin-bottom: 2rem;
+        }
+
+        .data-section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
-        .checkbox-item input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: var(--primary);
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
         }
 
-        .checkbox-item label {
-            color: var(--white);
-            font-size: 0.9rem;
-            cursor: pointer;
+        .data-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .data-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .data-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
         }
 
         /* RESPONSIVE */
         @media (max-width: 768px) {
-            .container {
+            .page {
                 padding: 1rem;
             }
             
-            .tabs-nav {
+            .question-actions {
                 flex-direction: column;
             }
             
-            .dashboard-grid {
-                grid-template-columns: 1fr;
+            .nav-question-btn, .send-btn {
+                flex: none;
             }
             
-            .header h1 {
-                font-size: 2rem;
+            .consultation-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
             }
         }
 
-        /* NOTIFICATIONS */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            color: var(--white);
-            font-weight: 500;
-            z-index: 1000;
-            animation: slideIn 0.3s ease;
+        /* ANIMATIONS */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
         }
 
-        .notification.success {
-            background: var(--success);
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .notification.error {
-            background: var(--danger);
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 6px;
         }
 
-        @keyframes slideIn {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
+        ::-webkit-scrollbar-track {
+            background: var(--surface);
+            border-radius: 3px;
         }
 
-        .hidden {
-            display: none !important;
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- HEADER -->
-        <div class="header">
-            <h1>🎯 TRACKER DE VIE</h1>
-            <p>Suivez vos progrès et atteignez vos objectifs</p>
-        </div>
-
-        <!-- NAVIGATION ONGLETS -->
-        <div class="tabs-nav">
-            <button class="tab-btn active" onclick="showTab('dashboard')">📊 Tableau de Bord</button>
-            <button class="tab-btn" onclick="showTab('daily')">📝 Quotidien</button>
-            <button class="tab-btn" onclick="showTab('sport')">🏃 Sport</button>
-            <button class="tab-btn" onclick="showTab('measurements')">📏 Mensurations</button>
-            <button class="tab-btn" onclick="showTab('objectives')">🎯 Objectifs</button>
-            <button class="tab-btn" onclick="showTab('settings')">⚙️ Paramètres</button>
-        </div>
-
-        <!-- ONGLET TABLEAU DE BORD -->
-        <div id="dashboard" class="tab-content active">
-            <!-- STATISTIQUES RAPIDES -->
-            <div class="dashboard-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="currentWeight">--</div>
-                    <div class="stat-label">⚖️ Poids Actuel (kg)</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="avgSleep">--</div>
-                    <div class="stat-label">😴 Sommeil Moyen (h)</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="weeklyWorkouts">--</div>
-                    <div class="stat-label">💪 Séances cette semaine</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="completedObjectives">--</div>
-                    <div class="stat-label">🎯 Objectifs atteints</div>
-                </div>
-            </div>
-
-            <!-- GRAPHIQUES -->
-            <div class="panel">
-                <div class="panel-title">📈 Évolution du Poids (30 jours)</div>
-                <div class="chart-container">
-                    <canvas id="weightChart"></canvas>
-                </div>
-            </div>
-
-            <div class="panel">
-                <div class="panel-title">😴 Qualité du Sommeil (7 jours)</div>
-                <div class="chart-container">
-                    <canvas id="sleepChart"></canvas>
-                </div>
-            </div>
-
-            <div class="panel">
-                <div class="panel-title">📱 Temps d'Écran vs Sport</div>
-                <div class="chart-container">
-                    <div id="screenTimeChart"></div>
-                </div>
+    <!-- NAVIGATION PRINCIPALE -->
+    <nav class="main-nav">
+        <div class="nav-content">
+            <h1 class="app-title">Cockpit de Combat</h1>
+            <div class="nav-buttons">
+                <button class="nav-btn active" onclick="showPage('cockpit')">🎯 Cockpit</button>
+                <button class="nav-btn" onclick="showPage('consultation')">📊 Données</button>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Basculer le thème"></button>
             </div>
         </div>
+    </nav>
 
-        <!-- ONGLET QUOTIDIEN -->
-        <div id="daily" class="tab-content">
-            <div class="panel">
-                <div class="panel-title">📝 Suivi Quotidien</div>
-                <form id="dailyForm" class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">📅 Date</label>
-                        <input type="date" class="form-input" name="date" required>
+    <!-- PAGE COCKPIT -->
+    <div id="cockpit" class="page active">
+        <div class="cockpit-layout fade-in">
+            <!-- CONTENU PRINCIPAL -->
+            <div class="main-content">
+                <!-- STATISTIQUES -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="dayCounter">Jour 1</div>
+                        <div class="stat-label">/ 90 Jours</div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">⚖️ Poids (kg)</label>
-                        <input type="number" class="form-input" name="weight" step="0.1" min="0">
+                    <div class="stat-card">
+                        <div class="stat-value" id="disciplineScore">100%</div>
+                        <div class="stat-label">Discipline</div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">😴 Heures de sommeil</label>
-                        <input type="number" class="form-input" name="sleep" step="0.5" min="0" max="12">
+                    <div class="stat-card">
+                        <div class="stat-value" id="answersToday">0</div>
+                        <div class="stat-label">Réponses Envoyées</div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">😴 Qualité sommeil (1-10)</label>
-                        <select class="form-select" name="sleepQuality">
-                            <option value="">Sélectionner</option>
-                            <option value="1">1 - Très mauvais</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5 - Moyen</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                            <option value="9">9</option>
-                            <option value="10">10 - Excellent</option>
-                        </select>
+                    <div class="stat-card">
+                        <div class="stat-value" id="currentStreak">7</div>
+                        <div class="stat-label">Série Parfaite</div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">📱 Temps d'écran (heures)</label>
-                        <input type="number" class="form-input" name="screenTime" step="0.5" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">🧠 Humeur (1-10)</label>
-                        <select class="form-select" name="mood">
-                            <option value="">Sélectionner</option>
-                            <option value="1">1 - Très mauvaise</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5 - Neutre</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                            <option value="9">9</option>
-                            <option value="10">10 - Excellente</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">💧 Verres d'eau</label>
-                        <input type="number" class="form-input" name="water" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">📚 Minutes de lecture</label>
-                        <input type="number" class="form-input" name="reading" min="0">
-                    </div>
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label class="form-label">📝 Notes du jour</label>
-                        <textarea class="form-textarea" name="notes" placeholder="Comment s'est passée votre journée ?"></textarea>
-                    </div>
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <button type="submit" class="btn">💾 Enregistrer</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- ONGLET SPORT -->
-        <div id="sport" class="tab-content">
-            <div class="panel">
-                <div class="panel-title">🏃 Suivi Sportif</div>
-                <form id="sportForm" class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">📅 Date</label>
-                        <input type="date" class="form-input" name="date" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">🏃 Type d'activité</label>
-                        <select class="form-select" name="activityType" required>
-                            <option value="">Sélectionner</option>
-                            <option value="running">Course à pied</option>
-                            <option value="cycling">Vélo</option>
-                            <option value="swimming">Natation</option>
-                            <option value="gym">Musculation</option>
-                            <option value="yoga">Yoga</option>
-                            <option value="walking">Marche</option>
-                            <option value="other">Autre</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">⏱️ Durée (minutes)</label>
-                        <input type="number" class="form-input" name="duration" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">🔥 Intensité (1-10)</label>
-                        <select class="form-select" name="intensity">
-                            <option value="">Sélectionner</option>
-                            <option value="1">1 - Très faible</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5 - Modérée</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                            <option value="9">9</option>
-                            <option value="10">10 - Maximale</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">📏 Distance (km)</label>
-                        <input type="number" class="form-input" name="distance" step="0.1" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">🔥 Calories brûlées</label>
-                        <input type="number" class="form-input" name="calories" min="0">
-                    </div>
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label class="form-label">📝 Notes</label>
-                        <textarea class="form-textarea" name="notes" placeholder="Comment s'est passée votre séance ?"></textarea>
-                    </div>
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <button type="submit" class="btn">💾 Enregistrer</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- ONGLET MENSURATIONS -->
-        <div id="measurements" class="tab-content">
-            <div class="panel">
-                <div class="panel-title">📏 Mensurations</div>
-                <form id="measurementsForm" class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">📅 Date</label>
-                        <input type="date" class="form-input" name="date" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">⚖️ Poids (kg)</label>
-                        <input type="number" class="form-input" name="weight" step="0.1" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">📐 Taille (cm)</label>
-                        <input type="number" class="form-input" name="height" step="0.1" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">🫀 Tour de taille (cm)</label>
-                        <input type="number" class="form-input" name="waist" step="0.1" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">💪 Tour de bras (cm)</label>
-                        <input type="number" class="form-input" name="arm" step="0.1" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">🦵 Tour de cuisse (cm)</label>
-                        <input type="number" class="form-input" name="thigh" step="0.1" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">🫁 Tour de poitrine (cm)</label>
-                        <input type="number" class="form-input" name="chest" step="0.1" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">📊 % de graisse corporelle</label>
-                        <input type="number" class="form-input" name="bodyFat" step="0.1" min="0" max="100">
-                    </div>
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <button type="submit" class="btn">💾 Enregistrer</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- ONGLET OBJECTIFS -->
-        <div id="objectives" class="tab-content">
-            <div class="panel">
-                <div class="panel-title">🎯 Mes Objectifs</div>
-                <div class="objectives-grid" id="objectivesList">
-                    <!-- Les objectifs seront générés dynamiquement -->
                 </div>
-                <button class="btn" onclick="addNewObjective()" style="margin-top: 1rem;">➕ Ajouter un Objectif</button>
-            </div>
-        </div>
 
-        <!-- ONGLET PARAMÈTRES -->
-        <div id="settings" class="tab-content">
-            <div class="panel">
-                <div class="panel-title">⚙️ Personnalisation</div>
-                <div class="customization-panel">
-                    <h3 style="margin-bottom: 1rem; color: var(--white);">Éléments à afficher</h3>
-                    <div class="checkbox-group" id="customizationOptions">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="show-weight" checked>
-                            <label for="show-weight">⚖️ Poids</label>
+                <!-- PROGRESSION VISUELLE -->
+                <div class="progress-overview">
+                    <h2 class="progress-title">Progression du Jour</h2>
+                    <div class="checks-overview">
+                        <div class="check-overview-item" data-check="mental" onclick="goToCheck('mental')">
+                            <span class="check-overview-icon">🧠</span>
+                            <div class="check-overview-name">Mental</div>
+                            <div class="check-overview-count" id="mentalCount">0/5</div>
                         </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="show-sleep" checked>
-                            <label for="show-sleep">😴 Sommeil</label>
+                        <div class="check-overview-item" data-check="cardio" onclick="goToCheck('cardio')">
+                            <span class="check-overview-icon">🏃</span>
+                            <div class="check-overview-name">Cardio</div>
+                            <div class="check-overview-count" id="cardioCount">0/3</div>
                         </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="show-sport" checked>
-                            <label for="show-sport">🏃 Sport</label>
+                        <div class="check-overview-item" data-check="muscu" onclick="goToCheck('muscu')">
+                            <span class="check-overview-icon">💪</span>
+                            <div class="check-overview-name">Musculation</div>
+                            <div class="check-overview-count" id="muscuCount">0/3</div>
                         </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="show-screen" checked>
-                            <label for="show-screen">📱 Temps d'écran</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="show-mood" checked>
-                            <label for="show-mood">🧠 Humeur</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="show-water" checked>
-                            <label for="show-water">💧 Hydratation</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="show-reading" checked>
-                            <label for="show-reading">📚 Lecture</label>
+                        <div class="check-overview-item" data-check="bilan" onclick="goToCheck('bilan')">
+                            <span class="check-overview-icon">📊</span>
+                            <div class="check-overview-name">Bilan</div>
+                            <div class="check-overview-count" id="bilanCount">0/6</div>
                         </div>
                     </div>
-                    <button class="btn" onclick="saveCustomization()" style="margin-top: 1rem;">💾 Sauvegarder</button>
+                </div>
+
+                <!-- QUESTION ACTUELLE -->
+                <div class="current-question">
+                    <div class="question-header">
+                        <div class="question-info">
+                            <div class="question-icon" id="currentQuestionIcon">🧠</div>
+                            <div class="question-details">
+                                <h3 id="currentQuestionTitle">Check Mental</h3>
+                                <div class="question-meta" id="currentQuestionMeta">Question 1 sur 5</div>
+                            </div>
+                        </div>
+                        <div class="question-counter" id="questionCounter">1/17</div>
+                    </div>
+
+                    <div class="question-content">
+                        <div class="question-label" id="questionLabel">Comment tu te sens ce matin ? (sans filtre)</div>
+                        <div id="questionInputContainer">
+                            <!-- Le champ de saisie sera généré dynamiquement -->
+                        </div>
+                    </div>
+
+                    <div class="question-actions">
+                        <button class="nav-question-btn" id="prevBtn" onclick="previousQuestion()" disabled>
+                            ← Précédent
+                        </button>
+                        <button class="send-btn" id="sendBtn" onclick="sendCurrentAnswer()">
+                            Envoyer Réponse
+                        </button>
+                        <button class="nav-question-btn" id="nextBtn" onclick="nextQuestion()">
+                            Suivant →
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="panel">
-                <div class="panel-title">🔗 Configuration AirTable</div>
-                <form id="airtableConfigForm" class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">🔑 Personal Access Token</label>
-                        <input type="password" class="form-input" name="airtableToken" placeholder="Votre token AirTable">
+            <!-- SIDEBAR COACH -->
+            <div class="sidebar">
+                <div class="coach-section">
+                    <div class="coach-header">
+                        <div class="coach-avatar">🤖</div>
+                        <div class="coach-info">
+                            <h3>Coach IA</h3>
+                            <div class="coach-status">● En ligne</div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">📊 Base ID</label>
-                        <input type="text" class="form-input" name="baseId" placeholder="appXXXXXXXXXXXXXX">
+                    <div class="coach-messages" id="coachMessages">
+                        <div class="coach-message">
+                            <div class="message-time">Aujourd'hui, 06:59</div>
+                            <div class="message-content">Salut Arnaud ! Prêt pour une nouvelle journée de progression ? Je vais analyser chacune de tes réponses et te donner des conseils personnalisés.</div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">📋 Nom de la table</label>
-                        <input type="text" class="form-input" name="tableName" placeholder="Tracker">
-                    </div>
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <button type="submit" class="btn">🔗 Connecter AirTable</button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="panel">
-                <div class="panel-title">📤 Export des Données</div>
-                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <button class="btn" onclick="exportToCSV()">📄 Exporter CSV</button>
-                    <button class="btn" onclick="exportToJSON()">📋 Exporter JSON</button>
-                    <button class="btn btn-danger" onclick="clearAllData()">🗑️ Effacer Données</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- PAGE CONSULTATION -->
+    <div id="consultation" class="page">
+        <div class="consultation-header fade-in">
+            <h2 class="consultation-title">Consultation des Données</h2>
+            <input type="date" class="date-selector" id="dateSelector" onchange="loadDataForDate(this.value)">
+        </div>
+
+        <div class="data-display fade-in" id="dataDisplay">
+            <p style="text-align: center; color: var(--text-secondary); font-style: italic;">
+                Sélectionnez une date pour voir les données enregistrées
+            </p>
+        </div>
+    </div>
+
     <script>
-        // VARIABLES GLOBALES
-        let charts = {};
-        let airtableConfig = {
-            token: '',
-            baseId: '',
-            tableName: 'Tracker'
-        };
-        let customization = {
-            showWeight: true,
-            showSleep: true,
-            showSport: true,
-            showScreen: true,
-            showMood: true,
-            showWater: true,
-            showReading: true
+        // ============================================
+        // CONFIGURATION GLOBALE
+        // ============================================
+        
+        const CONFIG = {
+            GOOGLE_WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbwXFsLr3G_53Mj1Lv-CtZLfxJzbjm0_y4dnlSXo-zLlvxkBu_dsYg0rfLC3Bx1XVLSL/exec',
+            OPENAI_API_KEY: 'YOUR_OPENAI_API_KEY', // À configurer
+            FEEDBACK_INTERVAL: 30000
         };
 
+        // QUESTIONS DÉFINIES[1]
+        const QUESTIONS = [
+            // CHECK MENTAL (5 questions)
+            { id: 'q1_mental', check: 'mental', label: 'Comment tu te sens ce matin ? (sans filtre)', type: 'textarea', placeholder: 'Décris ton état mental actuel...' },
+            { id: 'q2_sommeil_duree', check: 'mental', label: 'Heures de sommeil', type: 'number', step: '0.5', min: '0', max: '12', placeholder: '7.5' },
+            { id: 'q3_sommeil_qualite', check: 'mental', label: 'Qualité du sommeil (1-10)', type: 'select', options: [
+                {value: '', text: 'Évaluer'},
+                {value: '1', text: '1 - Catastrophique'},
+                {value: '2', text: '2 - Très mauvais'},
+                {value: '3', text: '3 - Mauvais'},
+                {value: '4', text: '4 - Médiocre'},
+                {value: '5', text: '5 - Moyen'},
+                {value: '6', text: '6 - Correct'},
+                {value: '7', text: '7 - Bon'},
+                {value: '8', text: '8 - Très bon'},
+                {value: '9', text: '9 - Excellent'},
+                {value: '10', text: '10 - Parfait'}
+            ]},
+            { id: 'q4_recuperation', check: 'mental', label: 'Récupération nerveuse (1-10)', type: 'select', options: [
+                {value: '', text: 'Évaluer'},
+                {value: '1', text: '1 - Épuisé'},
+                {value: '2', text: '2 - Très fatigué'},
+                {value: '3', text: '3 - Fatigué'},
+                {value: '4', text: '4 - Un peu fatigué'},
+                {value: '5', text: '5 - Neutre'},
+                {value: '6', text: '6 - Reposé'},
+                {value: '7', text: '7 - Bien reposé'},
+                {value: '8', text: '8 - Très bien reposé'},
+                {value: '9', text: '9 - En pleine forme'},
+                {value: '10', text: '10 - Au maximum'}
+            ]},
+            { id: 'q5_objectif', check: 'mental', label: 'Objectif prioritaire de la journée', type: 'text', placeholder: 'Ton objectif #1 aujourd\'hui' },
+            
+            // CHECK CARDIO (3 questions)
+            { id: 'q6_cardio_fait', check: 'cardio', label: 'Cardio effectué ce matin ?', type: 'select', options: [
+                {value: '', text: 'Sélectionner'},
+                {value: 'oui', text: '✅ OUI'},
+                {value: 'non', text: '❌ NON'}
+            ]},
+            { id: 'q7_cardio_perf', check: 'cardio', label: 'Performance (distance + temps)', type: 'text', placeholder: '5km en 24:15', conditional: 'q6_cardio_fait=oui' },
+            { id: 'q8_poids', check: 'cardio', label: 'Poids du jour (kg)', type: 'number', step: '0.1', min: '40', max: '150', placeholder: '75.2' },
+            
+            // CHECK MUSCU (3 questions)
+            { id: 'q9_muscu_fait', check: 'muscu', label: 'Musculation effectuée ?', type: 'select', options: [
+                {value: '', text: 'Sélectionner'},
+                {value: 'oui', text: '✅ OUI'},
+                {value: 'non', text: '❌ NON'}
+            ]},
+            { id: 'q10_muscu_duree', check: 'muscu', label: 'Durée séance', type: 'text', placeholder: '45 minutes', conditional: 'q9_muscu_fait=oui' },
+            { id: 'q11_depassement', check: 'muscu', label: 'Action de dépassement aujourd\'hui', type: 'textarea', placeholder: 'Quelle action t\'a poussé hors de ta zone de confort ?' },
+            
+            // CHECK BILAN (6 questions)
+            { id: 'q12_nutrition', check: 'bilan', label: 'Nutrition respectée ?', type: 'select', options: [
+                {value: '', text: 'Évaluer'},
+                {value: 'oui', text: '✅ Parfaitement'},
+                {value: 'non', text: '❌ Écarts commis'}
+            ]},
+            { id: 'q13_emotion', check: 'bilan', label: 'Émotion dominante de la journée', type: 'text', placeholder: 'Motivation, frustration...' },
+            { id: 'q14_note_journee', check: 'bilan', label: 'Note de la journée (1-10)', type: 'select', options: [
+                {value: '', text: 'Noter'},
+                {value: '1', text: '1 - Catastrophique'},
+                {value: '2', text: '2 - Très mauvaise'},
+                {value: '3', text: '3 - Mauvaise'},
+                {value: '4', text: '4 - Médiocre'},
+                {value: '5', text: '5 - Moyenne'},
+                {value: '6', text: '6 - Correcte'},
+                {value: '7', text: '7 - Bonne'},
+                {value: '8', text: '8 - Très bonne'},
+                {value: '9', text: '9 - Excellente'},
+                {value: '10', text: '10 - Parfaite'}
+            ]},
+            { id: 'q15_justification', check: 'bilan', label: 'Justification de la note', type: 'textarea', placeholder: 'Pourquoi cette note ?' },
+            { id: 'q16_business', check: 'bilan', label: 'Action business du jour', type: 'textarea', placeholder: 'Action qui t\'a rapproché de tes objectifs business' }
+        ];
+
+        // Variables globales
+        let currentQuestionIndex = 0;
+        let answeredQuestions = new Set();
+        let questionAnswers = {};
+        let currentData = {
+            day: 1,
+            disciplineScore: 100,
+            answersToday: 0,
+            currentStreak: 7
+        };
+
+        // ============================================
         // INITIALISATION
+        // ============================================
+        
         document.addEventListener('DOMContentLoaded', function() {
-            loadCustomization();
-            loadAirtableConfig();
-            initCharts();
-            updateDashboard();
-            loadObjectives();
-            setDefaultDates();
+            console.log('🚀 Initialisation Cockpit de Combat...');
+            
+            initTheme();
+            initDashboard();
+            showCurrentQuestion();
+            startFeedbackPolling();
+            
+            // Définir la date d'aujourd'hui par défaut
+            document.getElementById('dateSelector').value = new Date().toISOString().split('T')[0];
+            
+            console.log('✅ Cockpit opérationnel !');
         });
 
-        // GESTION DES ONGLETS
-        function showTab(tabName) {
-            // Masquer tous les onglets
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
+        // ============================================
+        // GESTION DU THÈME
+        // ============================================
+        
+        function initTheme() {
+            const savedTheme = localStorage.getItem('cockpit-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('cockpit-theme', newTheme);
+        }
+
+        // ============================================
+        // NAVIGATION PAGES
+        // ============================================
+        
+        function showPage(pageId) {
+            // Masquer toutes les pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
             });
             
-            // Désactiver tous les boutons
-            document.querySelectorAll('.tab-btn').forEach(btn => {
+            // Désactiver tous les boutons de navigation
+            document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             
-            // Afficher l'onglet sélectionné
-            document.getElementById(tabName).classList.add('active');
+            // Afficher la page sélectionnée
+            document.getElementById(pageId).classList.add('active');
             event.target.classList.add('active');
-            
-            // Mettre à jour les graphiques si on affiche le dashboard
-            if (tabName === 'dashboard') {
-                setTimeout(updateCharts, 100);
-            }
         }
 
-        // GESTION DES DONNÉES LOCALES
-        function saveData(key, data) {
-            const existingData = JSON.parse(localStorage.getItem(key) || '[]');
-            existingData.push({
-                ...data,
-                id: Date.now(),
-                timestamp: new Date().toISOString()
-            });
-            localStorage.setItem(key, JSON.stringify(existingData));
-            
-            // Envoyer vers AirTable si configuré
-            if (airtableConfig.token && airtableConfig.baseId) {
-                sendToAirtable(data, key);
-            }
-        }
-
-        function getData(key) {
-            return JSON.parse(localStorage.getItem(key) || '[]');
-        }
-
-        // INTÉGRATION AIRTABLE
-        async function sendToAirtable(data, dataType) {
-    try {
-        // Encoder correctement le nom de la table pour l'URL
-        const encodedTableName = encodeURIComponent(airtableConfig.tableName);
-        const url = `https://api.airtable.com/v0/${airtableConfig.baseId}/${encodedTableName}`;
+        // ============================================
+        // GESTION DES QUESTIONS[1]
+        // ============================================
         
-        console.log('URL AirTable:', url); // Pour debug
-        
-        const airtableData = {
-            fields: {
-                Date: data.date || new Date().toISOString().split('T')[0],
-                Type: dataType,
-                ...data
+        function showCurrentQuestion() {
+            const question = QUESTIONS[currentQuestionIndex];
+            if (!question) return;
+            
+            // Vérifier si la question est conditionnelle
+            if (question.conditional && !shouldShowQuestion(question)) {
+                // Passer à la question suivante
+                if (currentQuestionIndex < QUESTIONS.length - 1) {
+                    currentQuestionIndex++;
+                    showCurrentQuestion();
+                }
+                return;
             }
-        };
-
-        console.log('Données envoyées:', airtableData); // Pour debug
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${airtableConfig.token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(airtableData)
-        });
-
-        if (response.ok) {
-            const result = await response.json();
-            console.log('Succès AirTable:', result);
-            showNotification('✅ Données synchronisées avec AirTable', 'success');
-        } else {
-            const errorData = await response.json();
-            console.error('Erreur AirTable détaillée:', errorData);
-            throw new Error(`Erreur AirTable: ${response.status} - ${errorData.error?.message || 'Erreur inconnue'}`);
+            
+            // Mettre à jour l'interface
+            updateQuestionDisplay(question);
+            generateQuestionInput(question);
+            updateNavigationButtons();
+            updateProgressCounters();
         }
-    } catch (error) {
-        console.error('Erreur AirTable:', error);
-        showNotification(`❌ Erreur: ${error.message}`, 'error');
-    }
-}
 
-
-        // FORMULAIRES
-        document.getElementById('dailyForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData.entries());
+        function shouldShowQuestion(question) {
+            if (!question.conditional) return true;
             
-            saveData('daily', data);
-            showNotification('✅ Données quotidiennes enregistrées', 'success');
-            updateDashboard();
-            e.target.reset();
-            setDefaultDates();
-        });
+            const [conditionId, conditionValue] = question.conditional.split('=');
+            return questionAnswers[conditionId] === conditionValue;
+        }
 
-        document.getElementById('sportForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData.entries());
-            
-            saveData('sport', data);
-            showNotification('✅ Séance sportive enregistrée', 'success');
-            updateDashboard();
-            e.target.reset();
-            setDefaultDates();
-        });
-
-        document.getElementById('measurementsForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData.entries());
-            
-            saveData('measurements', data);
-            showNotification('✅ Mensurations enregistrées', 'success');
-            updateDashboard();
-            e.target.reset();
-            setDefaultDates();
-        });
-
-        document.getElementById('airtableConfigForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            
-            airtableConfig.token = formData.get('airtableToken');
-            airtableConfig.baseId = formData.get('baseId');
-            airtableConfig.tableName = formData.get('tableName') || 'Tracker';
-            
-            localStorage.setItem('airtableConfig', JSON.stringify(airtableConfig));
-            showNotification('✅ Configuration AirTable sauvegardée', 'success');
-        });
-
-        // GRAPHIQUES
-        function initCharts() {
-            // Graphique du poids
-            const weightCtx = document.getElementById('weightChart').getContext('2d');
-            charts.weight = new Chart(weightCtx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Poids (kg)',
-                        data: [],
-                        borderColor: '#6366f1',
-                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: '#94a3b8' }
-                        },
-                        x: {
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: '#94a3b8' }
-                        }
-                    }
-                }
-            });
-
-            // Graphique du sommeil
-            const sleepCtx = document.getElementById('sleepChart').getContext('2d');
-            charts.sleep = new Chart(sleepCtx, {
-                type: 'bar',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Qualité du sommeil',
-                        data: [],
-                        backgroundColor: '#10b981',
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 10,
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: '#94a3b8' }
-                        },
-                        x: {
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: '#94a3b8' }
-                        }
-                    }
-                }
-            });
-
-            // Graphique ApexCharts pour temps d'écran vs sport
-            const screenTimeOptions = {
-                series: [{
-                    name: 'Temps d\'écran (h)',
-                    data: []
-                }, {
-                    name: 'Sport (min)',
-                    data: []
-                }],
-                chart: {
-                    type: 'area',
-                    height: 350,
-                    background: 'transparent',
-                    toolbar: { show: false }
-                },
-                colors: ['#ef4444', '#10b981'],
-                dataLabels: { enabled: false },
-                stroke: { curve: 'smooth', width: 2 },
-                xaxis: {
-                    categories: [],
-                    labels: { style: { colors: '#94a3b8' } }
-                },
-                yaxis: {
-                    labels: { style: { colors: '#94a3b8' } }
-                },
-                grid: {
-                    borderColor: 'rgba(255, 255, 255, 0.1)'
-                },
-                legend: {
-                    labels: { colors: '#94a3b8' }
-                },
-                theme: { mode: 'dark' }
+        function updateQuestionDisplay(question) {
+            const checkData = {
+                mental: { icon: '🧠', title: 'Check Mental', time: '07:00' },
+                cardio: { icon: '🏃', title: 'Check Cardio', time: '08:30' },
+                muscu: { icon: '💪', title: 'Check Musculation', time: '13:00' },
+                bilan: { icon: '📊', title: 'Bilan Nutrition', time: '20:00' }
             };
-
-            charts.screenTime = new ApexCharts(document.querySelector("#screenTimeChart"), screenTimeOptions);
-            charts.screenTime.render();
+            
+            const checkInfo = checkData[question.check];
+            const questionsInCheck = QUESTIONS.filter(q => q.check === question.check);
+            const questionIndexInCheck = questionsInCheck.findIndex(q => q.id === question.id) + 1;
+            
+            document.getElementById('currentQuestionIcon').textContent = checkInfo.icon;
+            document.getElementById('currentQuestionTitle').textContent = `${checkInfo.title} - ${checkInfo.time}`;
+            document.getElementById('currentQuestionMeta').textContent = `Question ${questionIndexInCheck} sur ${questionsInCheck.length}`;
+            document.getElementById('questionCounter').textContent = `${currentQuestionIndex + 1}/${QUESTIONS.length}`;
+            document.getElementById('questionLabel').textContent = question.label;
         }
 
-        function updateCharts() {
-            const dailyData = getData('daily');
-            const sportData = getData('sport');
-            const measurementData = getData('measurements');
-
-            // Mise à jour graphique poids
-            if (measurementData.length > 0) {
-                const last30Days = measurementData.slice(-30);
-                const weightLabels = last30Days.map(d => new Date(d.date).toLocaleDateString('fr-FR'));
-                const weightValues = last30Days.map(d => parseFloat(d.weight) || 0);
-
-                charts.weight.data.labels = weightLabels;
-                charts.weight.data.datasets[0].data = weightValues;
-                charts.weight.update();
+        function generateQuestionInput(question) {
+            const container = document.getElementById('questionInputContainer');
+            let inputHtml = '';
+            
+            switch (question.type) {
+                case 'textarea':
+                    inputHtml = `<textarea class="question-textarea" id="currentInput" placeholder="${question.placeholder || ''}" rows="4"></textarea>`;
+                    break;
+                    
+                case 'number':
+                    inputHtml = `<input type="number" class="question-input" id="currentInput" 
+                                placeholder="${question.placeholder || ''}" 
+                                ${question.step ? `step="${question.step}"` : ''}
+                                ${question.min ? `min="${question.min}"` : ''}
+                                ${question.max ? `max="${question.max}"` : ''}">`;
+                    break;
+                    
+                case 'select':
+                    inputHtml = `<select class="question-select" id="currentInput">`;
+                    question.options.forEach(option => {
+                        inputHtml += `<option value="${option.value}">${option.text}</option>`;
+                    });
+                    inputHtml += `</select>`;
+                    break;
+                    
+                default: // text
+                    inputHtml = `<input type="text" class="question-input" id="currentInput" placeholder="${question.placeholder || ''}">`;
             }
-
-            // Mise à jour graphique sommeil
-            if (dailyData.length > 0) {
-                const last7Days = dailyData.slice(-7);
-                const sleepLabels = last7Days.map(d => new Date(d.date).toLocaleDateString('fr-FR'));
-                const sleepValues = last7Days.map(d => parseInt(d.sleepQuality) || 0);
-
-                charts.sleep.data.labels = sleepLabels;
-                charts.sleep.data.datasets[0].data = sleepValues;
-                charts.sleep.update();
+            
+            container.innerHTML = inputHtml;
+            
+            // Restaurer la réponse si elle existe
+            const savedAnswer = questionAnswers[question.id];
+            if (savedAnswer) {
+                document.getElementById('currentInput').value = savedAnswer;
             }
+            
+            // Mettre à jour le bouton d'envoi
+            updateSendButton(question);
+        }
 
-            // Mise à jour graphique temps d'écran vs sport
-            if (dailyData.length > 0) {
-                const last7Days = dailyData.slice(-7);
-                const labels = last7Days.map(d => new Date(d.date).toLocaleDateString('fr-FR'));
-                const screenTimeData = last7Days.map(d => parseFloat(d.screenTime) || 0);
-                
-                // Calculer les minutes de sport par jour
-                const sportMinutes = labels.map(label => {
-                    const dayData = sportData.filter(s => new Date(s.date).toLocaleDateString('fr-FR') === label);
-                    return dayData.reduce((total, session) => total + (parseInt(session.duration) || 0), 0);
-                });
-
-                charts.screenTime.updateOptions({
-                    xaxis: { categories: labels },
-                    series: [{
-                        name: 'Temps d\'écran (h)',
-                        data: screenTimeData
-                    }, {
-                        name: 'Sport (min)',
-                        data: sportMinutes
-                    }]
-                });
+        function updateSendButton(question) {
+            const sendBtn = document.getElementById('sendBtn');
+            const isAnswered = answeredQuestions.has(question.id);
+            
+            if (isAnswered) {
+                sendBtn.textContent = '✅ Envoyé';
+                sendBtn.classList.add('sent');
+            } else {
+                sendBtn.textContent = 'Envoyer Réponse';
+                sendBtn.classList.remove('sent');
             }
         }
 
-        // DASHBOARD
-        function updateDashboard() {
-            const dailyData = getData('daily');
-            const sportData = getData('sport');
-            const measurementData = getData('measurements');
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            prevBtn.disabled = currentQuestionIndex === 0;
+            nextBtn.disabled = currentQuestionIndex === QUESTIONS.length - 1;
+        }
 
-            // Poids actuel
-            const latestWeight = measurementData.length > 0 ? 
-                measurementData[measurementData.length - 1].weight : '--';
-            document.getElementById('currentWeight').textContent = latestWeight;
-
-            // Sommeil moyen (7 derniers jours)
-            const last7Days = dailyData.slice(-7);
-            const avgSleep = last7Days.length > 0 ? 
-                (last7Days.reduce((sum, d) => sum + (parseFloat(d.sleep) || 0), 0) / last7Days.length).toFixed(1) : '--';
-            document.getElementById('avgSleep').textContent = avgSleep;
-
-            // Séances cette semaine
-            const thisWeek = sportData.filter(s => {
-                const sessionDate = new Date(s.date);
-                const weekAgo = new Date();
-                weekAgo.setDate(weekAgo.getDate() - 7);
-                return sessionDate >= weekAgo;
+        function updateProgressCounters() {
+            const checkCounts = {
+                mental: { answered: 0, total: 0 },
+                cardio: { answered: 0, total: 0 },
+                muscu: { answered: 0, total: 0 },
+                bilan: { answered: 0, total: 0 }
+            };
+            
+            QUESTIONS.forEach(question => {
+                checkCounts[question.check].total++;
+                if (answeredQuestions.has(question.id)) {
+                    checkCounts[question.check].answered++;
+                }
             });
-            document.getElementById('weeklyWorkouts').textContent = thisWeek.length;
-
-            // Objectifs atteints
-            const objectives = JSON.parse(localStorage.getItem('objectives') || '[]');
-            const completed = objectives.filter(obj => obj.progress >= 100).length;
-            document.getElementById('completedObjectives').textContent = `${completed}/${objectives.length}`;
-
-            updateCharts();
+            
+            // Mettre à jour les compteurs visuels
+            Object.keys(checkCounts).forEach(check => {
+                const count = checkCounts[check];
+                document.getElementById(`${check}Count`).textContent = `${count.answered}/${count.total}`;
+                
+                // Marquer comme envoyé si toutes les questions sont répondues
+                const checkElement = document.querySelector(`[data-check="${check}"]`);
+                if (count.answered === count.total && count.total > 0) {
+                    checkElement.classList.add('sent');
+                } else {
+                    checkElement.classList.remove('sent');
+                }
+            });
+            
+            // Mettre à jour le compteur global
+            document.getElementById('answersToday').textContent = answeredQuestions.size;
         }
 
-        // OBJECTIFS
-        function loadObjectives() {
-            const objectives = JSON.parse(localStorage.getItem('objectives') || '[]');
-            const container = document.getElementById('objectivesList');
+        // ============================================
+        // NAVIGATION ENTRE QUESTIONS
+        // ============================================
+        
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showCurrentQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < QUESTIONS.length - 1) {
+                currentQuestionIndex++;
+                showCurrentQuestion();
+            }
+        }
+
+        function goToCheck(checkType) {
+            const firstQuestionOfCheck = QUESTIONS.findIndex(q => q.check === checkType);
+            if (firstQuestionOfCheck !== -1) {
+                currentQuestionIndex = firstQuestionOfCheck;
+                showCurrentQuestion();
+            }
+        }
+
+        // ============================================
+        // ENVOI DES RÉPONSES[1]
+        // ============================================
+        
+        async function sendCurrentAnswer() {
+            const question = QUESTIONS[currentQuestionIndex];
+            const input = document.getElementById('currentInput');
+            const answer = input.value.trim();
             
-            container.innerHTML = '';
+            if (!answer) {
+                alert('Veuillez saisir une réponse avant d\'envoyer.');
+                return;
+            }
             
-            objectives.forEach((obj, index) => {
-                const card = document.createElement('div');
-                card.className = 'objective-card';
-                card.innerHTML = `
-                    <div class="objective-title">${obj.title}</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${Math.min(obj.progress, 100)}%"></div>
-                    </div>
-                    <div class="progress-text">${obj.current}/${obj.target} ${obj.unit} (${Math.round(obj.progress)}%)</div>
-                    <button class="btn btn-danger" onclick="deleteObjective(${index})" style="margin-top: 1rem; font-size: 0.8rem; padding: 0.5rem;">🗑️ Supprimer</button>
+            // Désactiver le bouton pendant l'envoi
+            const sendBtn = document.getElementById('sendBtn');
+            const originalText = sendBtn.textContent;
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Envoi...';
+            
+            try {
+                // Sauvegarder la réponse localement
+                questionAnswers[question.id] = answer;
+                answeredQuestions.add(question.id);
+                
+                // Envoyer au backend
+                await sendAnswerToBackend(question, answer);
+                
+                // Analyser avec ChatGPT[2]
+                await analyzeAnswerWithGPT(question, answer);
+                
+                // Mettre à jour l'interface
+                updateSendButton(question);
+                updateProgressCounters();
+                
+                // Animation de succès
+                sendBtn.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    sendBtn.style.transform = 'scale(1)';
+                }, 200);
+                
+                addCoachMessage(`✅ Réponse "${question.label}" enregistrée avec succès !`);
+                
+                // Passer automatiquement à la question suivante après 1.5s
+                setTimeout(() => {
+                    if (currentQuestionIndex < QUESTIONS.length - 1) {
+                        nextQuestion();
+                    }
+                }, 1500);
+                
+            } catch (error) {
+                console.error('❌ Erreur envoi:', error);
+                addCoachMessage('❌ Erreur lors de l\'envoi. Réessayez.');
+            } finally {
+                sendBtn.disabled = false;
+                if (!answeredQuestions.has(question.id)) {
+                    sendBtn.textContent = originalText;
+                }
+            }
+        }
+
+        async function sendAnswerToBackend(question, answer) {
+            try {
+                const payload = {
+                    action: 'submitAnswer',
+                    questionId: question.id,
+                    checkType: question.check,
+                    answer: answer,
+                    timestamp: new Date().toISOString()
+                };
+                
+                const response = await fetch(CONFIG.GOOGLE_WEB_APP_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.error || 'Erreur serveur');
+                }
+                
+            } catch (error) {
+                console.error('❌ Erreur backend:', error);
+                throw error;
+            }
+        }
+
+        // ============================================
+        // INTÉGRATION CHATGPT[2]
+        // ============================================
+        
+        async function analyzeAnswerWithGPT(question, answer) {
+            try {
+                const contextData = {
+                    questionId: question.id,
+                    questionLabel: question.label,
+                    checkType: question.check,
+                    answer: answer,
+                    previousAnswers: questionAnswers,
+                    day: currentData.day
+                };
+                
+                const prompt = buildCoachPrompt(contextData);
+                
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${CONFIG.OPENAI_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-4o-mini',
+                        messages: [
+                            { 
+                                role: 'system', 
+                                content: `Tu es un coach militaire strict et bienveillant pour Arnaud, 18 ans, en mission de transformation de 90 jours.
+                                
+                                RÈGLES ABSOLUES:
+                                - Tutoie toujours ("tu", "ton", "ta")
+                                - Sois direct mais encourageant
+                                - Donne des conseils concrets et actionnables
+                                - Si récupération nerveuse < 4 : IMPOSE un jour de récupération
+                                - Récompense les bonnes performances
+                                - Corrige les mauvaises habitudes
+                                - Maximum 80 mots par réponse
+                                - Utilise des emojis pour rendre tes conseils engageants`
+                            },
+                            { 
+                                role: 'user', 
+                                content: prompt 
+                            }
+                        ],
+                        max_tokens: 120,
+                        temperature: 0.7
+                    })
+                });
+                
+                const data = await response.json();
+                const coachAdvice = data.choices[0].message.content;
+                
+                // Afficher le conseil du coach
+                addCoachMessage(coachAdvice, 'coach');
+                
+            } catch (error) {
+                console.error('❌ Erreur ChatGPT:', error);
+                addCoachMessage('🤖 Analyse en cours... Je reviens vers toi dans un instant.', 'system');
+            }
+        }
+
+        function buildCoachPrompt(contextData) {
+            let prompt = `ANALYSE DE RÉPONSE - Jour ${contextData.day}/90\n\n`;
+            prompt += `Question: ${contextData.questionLabel}\n`;
+            prompt += `Réponse d'Arnaud: "${contextData.answer}"\n`;
+            prompt += `Type de check: ${contextData.checkType}\n\n`;
+            
+            // Ajouter contexte des réponses précédentes si pertinent
+            if (contextData.checkType === 'mental' && contextData.previousAnswers.q4_recuperation) {
+                prompt += `Récupération nerveuse: ${contextData.previousAnswers.q4_recuperation}/10\n`;
+            }
+            
+            prompt += `\nDonne un conseil court et actionnable basé sur cette réponse:`;
+            
+            return prompt;
+        }
+
+        // ============================================
+        // COACH IA MESSAGES
+        // ============================================
+        
+        function addCoachMessage(message, type = 'coach') {
+            const container = document.getElementById('coachMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'coach-message';
+            
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('fr-FR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            messageDiv.innerHTML = `
+                <div class="message-time">Aujourd'hui, ${timeStr}</div>
+                <div class="message-content">${message}</div>
+            `;
+            
+            container.insertBefore(messageDiv, container.firstChild);
+            
+            // Limiter à 8 messages
+            while (container.children.length > 8) {
+                container.removeChild(container.lastChild);
+            }
+        }
+
+        function startFeedbackPolling() {
+            setInterval(fetchFeedback, CONFIG.FEEDBACK_INTERVAL);
+        }
+        
+        async function fetchFeedback() {
+            try {
+                const response = await fetch(`${CONFIG.GOOGLE_WEB_APP_URL}?action=getLatestFeedback`);
+                const data = await response.json();
+                
+                if (data.success && data.feedback) {
+                    addCoachMessage(data.feedback);
+                }
+            } catch (error) {
+                console.error('❌ Erreur feedback:', error);
+            }
+        }
+
+        // ============================================
+        // PAGE CONSULTATION[3]
+        // ============================================
+        
+        async function loadDataForDate(selectedDate) {
+            if (!selectedDate) return;
+            
+            const dataDisplay = document.getElementById('dataDisplay');
+            dataDisplay.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Chargement des données...</p>';
+            
+            try {
+                const response = await fetch(`${CONFIG.GOOGLE_WEB_APP_URL}?action=getDataForDate&date=${selectedDate}`);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    displayDayData(data.data, selectedDate);
+                } else {
+                    dataDisplay.innerHTML = `
+                        <p style="text-align: center; color: var(--text-secondary); font-style: italic;">
+                            Aucune donnée trouvée pour le ${new Date(selectedDate).toLocaleDateString('fr-FR')}
+                        </p>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('❌ Erreur chargement données:', error);
+                dataDisplay.innerHTML = `
+                    <p style="text-align: center; color: var(--danger);">
+                        Erreur lors du chargement des données
+                    </p>
                 `;
-                container.appendChild(card);
-            });
-        }
-
-        function addNewObjective() {
-            const title = prompt('Titre de l\'objectif :');
-            if (!title) return;
-            
-            const target = prompt('Objectif à atteindre (nombre) :');
-            if (!target) return;
-            
-            const unit = prompt('Unité (ex: kg, heures, fois) :');
-            if (!unit) return;
-            
-            const objectives = JSON.parse(localStorage.getItem('objectives') || '[]');
-            objectives.push({
-                title,
-                target: parseFloat(target),
-                current: 0,
-                unit,
-                progress: 0,
-                createdAt: new Date().toISOString()
-            });
-            
-            localStorage.setItem('objectives', JSON.stringify(objectives));
-            loadObjectives();
-            showNotification('✅ Objectif ajouté', 'success');
-        }
-
-        function deleteObjective(index) {
-            if (confirm('Êtes-vous sûr de vouloir supprimer cet objectif ?')) {
-                const objectives = JSON.parse(localStorage.getItem('objectives') || '[]');
-                objectives.splice(index, 1);
-                localStorage.setItem('objectives', JSON.stringify(objectives));
-                loadObjectives();
-                showNotification('✅ Objectif supprimé', 'success');
             }
         }
 
-        // PERSONNALISATION
-        function loadCustomization() {
-            const saved = localStorage.getItem('customization');
-            if (saved) {
-                customization = JSON.parse(saved);
+        function displayDayData(dayData, date) {
+            const dataDisplay = document.getElementById('dataDisplay');
+            const formattedDate = new Date(date).toLocaleDateString('fr-FR', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            let html = `<h3 style="margin-bottom: 2rem; color: var(--primary);">📅 Données du ${formattedDate}</h3>`;
+            
+            // Organiser les données par check
+            const checkData = {
+                mental: { icon: '🧠', title: 'Check Mental', data: [] },
+                cardio: { icon: '🏃', title: 'Check Cardio', data: [] },
+                muscu: { icon: '💪', title: 'Check Musculation', data: [] },
+                bilan: { icon: '📊', title: 'Bilan Nutrition', data: [] }
+            };
+            
+            // Grouper les réponses par check
+            dayData.forEach(item => {
+                const question = QUESTIONS.find(q => q.id === item.questionId);
+                if (question) {
+                    checkData[question.check].data.push({
+                        label: question.label,
+                        answer: item.answer,
+                        time: item.timestamp
+                    });
+                }
+            });
+            
+            // Afficher chaque section
+            Object.keys(checkData).forEach(checkType => {
+                const check = checkData[checkType];
+                if (check.data.length > 0) {
+                    html += `
+                        <div class="data-section">
+                            <h4 class="data-section-title">
+                                <span>${check.icon}</span>
+                                ${check.title}
+                            </h4>
+                            <div class="data-grid">
+                    `;
+                    
+                    check.data.forEach(item => {
+                        html += `
+                            <div class="data-item">
+                                <div class="data-label">${item.label}</div>
+                                <div class="data-value">${item.answer}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `</div></div>`;
+                }
+            });
+            
+            if (dayData.length === 0) {
+                html += `
+                    <p style="text-align: center; color: var(--text-secondary); font-style: italic;">
+                        Aucune donnée enregistrée pour cette date
+                    </p>
+                `;
+            }
+            
+            dataDisplay.innerHTML = html;
+        }
+
+        // ============================================
+        // INITIALISATION DU DASHBOARD
+        // ============================================
+        
+        async function initDashboard() {
+            try {
+                await loadInitialData();
+                updateStats();
+            } catch (error) {
+                console.error('❌ Erreur initialisation:', error);
+                updateStats();
+            }
+        }
+
+        async function loadInitialData() {
+            try {
+                const response = await fetch(`${CONFIG.GOOGLE_WEB_APP_URL}?action=getInitialData`);
+                const data = await response.json();
                 
-                // Appliquer les préférences aux checkboxes
-                Object.keys(customization).forEach(key => {
-                    const checkbox = document.getElementById(`show-${key.replace('show', '').toLowerCase()}`);
-                    if (checkbox) {
-                        checkbox.checked = customization[key];
+                if (data.success) {
+                    currentData = { ...currentData, ...data.data };
+                    
+                    // Restaurer les réponses existantes
+                    if (data.data.todayAnswers) {
+                        data.data.todayAnswers.forEach(answer => {
+                            questionAnswers[answer.questionId] = answer.answer;
+                            answeredQuestions.add(answer.questionId);
+                        });
+                        updateProgressCounters();
                     }
-                });
-            }
-        }
-
-        function saveCustomization() {
-            const checkboxes = document.querySelectorAll('#customizationOptions input[type="checkbox"]');
-            checkboxes.forEach(cb => {
-                const key = 'show' + cb.id.split('-')[1].charAt(0).toUpperCase() + cb.id.split('-')[1].slice(1);
-                customization[key] = cb.checked;
-            });
-            
-            localStorage.setItem('customization', JSON.stringify(customization));
-            showNotification('✅ Préférences sauvegardées', 'success');
-        }
-
-        function loadAirtableConfig() {
-            const saved = localStorage.getItem('airtableConfig');
-            if (saved) {
-                airtableConfig = JSON.parse(saved);
-                
-                // Pré-remplir le formulaire
-                document.querySelector('input[name="airtableToken"]').value = airtableConfig.token || '';
-                document.querySelector('input[name="baseId"]').value = airtableConfig.baseId || '';
-                document.querySelector('input[name="tableName"]').value = airtableConfig.tableName || 'Tracker';
-            }
-        }
-
-        // UTILITAIRES
-        function setDefaultDates() {
-            const today = new Date().toISOString().split('T')[0];
-            document.querySelectorAll('input[type="date"]').forEach(input => {
-                if (!input.value) {
-                    input.value = today;
                 }
-            });
-        }
-
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-
-        // EXPORT
-        function exportToCSV() {
-            const allData = {
-                daily: getData('daily'),
-                sport: getData('sport'),
-                measurements: getData('measurements')
-            };
-            
-            let csv = 'Type,Date,Data\n';
-            
-            Object.keys(allData).forEach(type => {
-                allData[type].forEach(item => {
-                    csv += `${type},${item.date || item.timestamp},"${JSON.stringify(item).replace(/"/g, '""')}"\n`;
-                });
-            });
-            
-            downloadFile(csv, 'tracker-data.csv', 'text/csv');
-            showNotification('✅ Données exportées en CSV', 'success');
-        }
-
-        function exportToJSON() {
-            const allData = {
-                daily: getData('daily'),
-                sport: getData('sport'),
-                measurements: getData('measurements'),
-                objectives: JSON.parse(localStorage.getItem('objectives') || '[]'),
-                customization: customization,
-                exportDate: new Date().toISOString()
-            };
-            
-            downloadFile(JSON.stringify(allData, null, 2), 'tracker-data.json', 'application/json');
-            showNotification('✅ Données exportées en JSON', 'success');
-        }
-
-        function downloadFile(content, filename, contentType) {
-            const blob = new Blob([content], { type: contentType });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = filename;
-            link.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function clearAllData() {
-            if (confirm('⚠️ ATTENTION : Cette action supprimera toutes vos données de manière définitive. Êtes-vous sûr ?')) {
-                if (confirm('Dernière confirmation : Voulez-vous vraiment effacer TOUTES les données ?')) {
-                    localStorage.clear();
-                    location.reload();
-                }
+            } catch (error) {
+                console.error('❌ Erreur chargement:', error);
             }
         }
+
+        function updateStats() {
+            document.getElementById('dayCounter').textContent = `Jour ${currentData.day}`;
+            document.getElementById('disciplineScore').textContent = `${currentData.disciplineScore}%`;
+            document.getElementById('answersToday').textContent = currentData.answersToday || answeredQuestions.size;
+            document.getElementById('currentStreak').textContent = currentData.currentStreak;
+        }
+
+        // ============================================
+        // GESTION DES ERREURS
+        // ============================================
+        
+        window.addEventListener('error', function(e) {
+            console.error('❌ Erreur JavaScript:', e.error);
+            addCoachMessage('Erreur système détectée. Rechargement recommandé.', 'error');
+        });
     </script>
 </body>
 </html>
